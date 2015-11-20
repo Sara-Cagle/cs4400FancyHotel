@@ -25,7 +25,7 @@ class NewUserRegistrationResource(Resource):
 
 		if not db.mysqldb.user_exists(username) and  not db.mysqldb.email_exists(email):
 			db.mysqldb.register_user(username, email, password, firstName, lastName)
-			return "#nice"
+			return {"message": "User successfully created"}
 		else:
-			return "This user already exists", 400
+			return {"error": "This user already exists"}, 400
 

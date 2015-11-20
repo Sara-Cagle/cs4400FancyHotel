@@ -2,18 +2,26 @@
 
 <div class="container">
   <h2>User registration</h2>
-  <form role="form">
+  <form role="form" ng-submit="submit()">
   	<div class="form-group">
       <label for="username">Username:</label>
-      <input type="username" class="form-control" placeholder="Username">
+      <input type="username" class="form-control" placeholder="Username" ng-model="username">
+    </div>
+    <div class="form-group">
+      <label for="username">First Name:</label>
+      <input type="name" class="form-control" placeholder="First name" ng-model="firstName">
+    </div>
+    <div class="form-group">
+      <label for="username">Last Name:</label>
+      <input type="name" class="form-control" placeholder="Last name" ng-model="lastName">
     </div>
   	<div class="form-group">
       <label for="email">Email:</label>
-      <input type="email" class="form-control" placeholder="Email">
+      <input type="email" class="form-control" placeholder="Email" ng-model="email">
     </div>
     <div class="form-group">
       <label for="password">Password:</label>
-      <input type="password" class="form-control" placeholder="Password">
+      <input type="password" class="form-control" placeholder="Password" ng-model="password">
     </div>
     <div class="form-group">
       <label for="password">Confirm password:</label>

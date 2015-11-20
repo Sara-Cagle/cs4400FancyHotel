@@ -1,4 +1,17 @@
-angular.module('FancyHotelApp', ['ngRoute'])
+var registerModule = angular.module('registerModule', ['ngResource']);
+
+registerModule.factory('userFactory', function($resource){
+	return $resource('/api', {}, {
+		Register: {
+			method: 'POST',
+			url: '/api/register'
+		}
+	})
+})
+
+
+
+angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 
 /*.controller('contentController', [function($route, $routeParams) {
 }])*/
@@ -18,6 +31,26 @@ angular.module('FancyHotelApp', ['ngRoute'])
 	]
 }])*/
 
+
+.controller('registerController', function($scope, userFactory) {
+
+	$scope.submit = function() {
+		userFactory.Register({
+			"username": $scope.username,
+			"email": $scope.email,
+			"password": $scope.password,
+			"firstName": $scope.firstName,
+			"lastName": $scope.lastName
+
+		})
+	}
+	
+})
+
+
+
+
+
 .config(function($routeProvider) { //routing needs to be on a server in order to run
 	$routeProvider
 	.when('/',{
@@ -28,8 +61,8 @@ angular.module('FancyHotelApp', ['ngRoute'])
 		/*controller: 'contentController',*/
 	})
 	.when('/register', {
-	templateUrl: 'static/views/registerUser.html'//,
-		/*controller: 'contentController',*/
+	templateUrl: 'static/views/registerUser.html',
+		controller: 'registerController'
 	})
 	.when('/portal', { //the page that the user can pick their task on
 	templateUrl: 'static/views/selectionPage.html'//,
@@ -56,3 +89,5 @@ angular.module('FancyHotelApp', ['ngRoute'])
 		/*controller: 'contentController'*/
 	});
 })
+
+
