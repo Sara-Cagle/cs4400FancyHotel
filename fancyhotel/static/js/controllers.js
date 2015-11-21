@@ -1,10 +1,14 @@
 var registerModule = angular.module('registerModule', ['ngResource']);
 
-registerModule.factory('userFactory', function($resource){
+registerModule.factory('authFactory', function($resource){
 	return $resource('/api', {}, {
 		Register: {
 			method: 'POST',
 			url: '/api/register'
+		},
+		Login: {
+			method: 'POST',
+			url: '/api/login'
 		}
 	})
 })
@@ -13,41 +17,44 @@ registerModule.factory('userFactory', function($resource){
 
 angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 
-/*.controller('contentController', [function($route, $routeParams) {
-}])*/
 
-
-/*.controller('navController', [function($route, $routeParams) {
-	this.links =[
-		{linkName: 'About',
-		URL: '/about',
-		},
-		{linkName: 'Resume',
-		URL: '/resume',
-		},
-		{linkName: 'Projects',
-		URL: '/projects',
-		}
-	]
-}])*/
-
-
-.controller('registerController', function($scope, userFactory) {
+.controller('registerController', function($scope, authFactory) {
 
 	$scope.submit = function() {
-		userFactory.Register({
+		response = authFactory.Register({
 			"username": $scope.username,
 			"email": $scope.email,
 			"password": $scope.password,
 			"firstName": $scope.firstName,
 			"lastName": $scope.lastName
 
-		})
+		});
+
+		//deal with promise response.$promise.then
+
 	}
 	
 })
 
+.controller('loginController', function($rootScope, $scope, authFactory){
+	$scope.submit = function(){
+		response = authFactory.Login({
+			"username": $scope.username,
+			"password": $scope.password
+		});
 
+		response.$promise.then(function(data){
+			if(data["result"] == true){
+				$rootScope.currentUser = $scope.username;
+				console.log("login success!");
+			}
+			else{
+			//do something else, they failed to log in.
+			}
+		});
+	}
+
+})
 
 
 
@@ -57,35 +64,35 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 		templateUrl: 'static/views/login.html',
 	})
 	.when('/login', {
-	templateUrl: 'static/views/login.html',
-		/*controller: 'contentController',*/
+		templateUrl: 'static/views/login.html',
+		controller: 'loginController'
 	})
 	.when('/register', {
-	templateUrl: 'static/views/registerUser.html',
+		templateUrl: 'static/views/registerUser.html',
 		controller: 'registerController'
 	})
 	.when('/portal', { //the page that the user can pick their task on
-	templateUrl: 'static/views/selectionPage.html'//,
+		templateUrl: 'static/views/selectionPage.html'//,
 		/*controller: 'contentController'*/
 	})
 	.when('/searchroom', {
-	templateUrl: 'static/views/searchRoom.html'//,
+		templateUrl: 'static/views/searchRoom.html'//,
 		/*controller: 'contentController'*/
 	})
 	.when('/reserve', {
-	templateUrl: 'static/views/makeReservation.html'//,
+		templateUrl: 'static/views/makeReservation.html'//,
 		/*controller: 'contentController'*/
 	})
 	.when('/payment', {
-	templateUrl: 'static/views/payment.html'//,
+		templateUrl: 'static/views/payment.html'//,
 		/*controller: 'contentController'*/
 	})
 	.when('/confirmation', {
-	templateUrl: 'static/views/reservationConfirmation.html'//,
+		templateUrl: 'static/views/reservationConfirmation.html'//,
 		/*controller: 'contentController'*/
 	})
 	.when('/projects', {
-	templateUrl: 'static/views/project.html'//,
+		templateUrl: 'static/views/project.html'//,
 		/*controller: 'contentController'*/
 	});
 })
