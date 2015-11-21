@@ -104,7 +104,10 @@ class MysqlManager(object):
 			)
 			
 
-			print "if its here it should have worked"
+
+			#fill db with existing data here: managers, locations, etc
+
+
 			
 		finally:
 			cursor.close()
@@ -128,8 +131,6 @@ class MysqlManager(object):
 			return len(rows)!=0
 		finally:
 			cursor.close()
-
-
 
 
 	def email_exists(self, email):
@@ -161,5 +162,41 @@ class MysqlManager(object):
 				pass
 			else:
 				self.connection.commit() #required to write into the database
+		finally:
+			cursor.close()
+
+	def login(self, username, password):
+		cursor = self.connection.cursor()
+		try:
+
+			userType = username[0];
+
+			
+			if userType == 'C':
+				cursor.execute(
+					'''SELECT *
+					FROM Customer
+					WHERE username = %(username)s AND password = %(password)s''',
+					{'username': username, 'password':password}
+				)
+				rows = cursor.fetchall()
+				return len(rows)!=0
+
+			elif userType == 'M':
+				cursor.execute(
+					'''SELECT *
+					FROM Manager
+					WHERE username = %(username)s AND password = %(password)s''',
+					{'username': username, 'password':password}
+				)
+				rows = cursor.fetchall()
+				return len(rows)!=0
+
+			else:
+				print "you shouldn't be here. Names should only start with C or M."
+				return False
+
+
+
 		finally:
 			cursor.close()

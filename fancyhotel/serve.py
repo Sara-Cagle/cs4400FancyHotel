@@ -13,7 +13,7 @@ api = Api(app)
 def index():
 	return render_template("index.html")
 
-#api.add_resource(restapi.LoginResource, '#')
+api.add_resource(restapi.LoginResource, '/api/login')
 api.add_resource(restapi.NewUserRegistrationResource, '/api/register')
 #api.add_resource(restapi.SearchRoomsResource, '#')
 #api.add_resource(restapi.PaymentInfoResource, '#')

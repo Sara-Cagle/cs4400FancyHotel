@@ -29,3 +29,20 @@ class NewUserRegistrationResource(Resource):
 		else:
 			return {"error": "This user already exists"}, 400
 
+class LoginResource(Resource):
+	
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument('username', type=str, required= True, help="Username is required to sign in", location='json')
+		self.reqparse.add_argument('password', type=str, required= True, help="Email is required to sign in", location='json')
+		super(LoginResource, self).__init__()
+
+	def post(self):
+		args = self.reqparse.parse_args()
+		username = args['username']
+		password = args['password']
+
+		if db.mysqldb.login(username, password):
+			return {"message": "You logged in!", "result": True}
+		else:
+			return {"error": "Login information invalid. Check your username or password", "result": False}, 401
