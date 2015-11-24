@@ -218,5 +218,3 @@ class MysqlManager(object):
 			#DATE('2015-11-29') (the mock checkout date)
 		finally:
 			cursor.close()
-
-	}
