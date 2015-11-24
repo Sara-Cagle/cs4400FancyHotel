@@ -15,11 +15,11 @@ class MysqlManager(object):
 
 
 			cursor.execute(
-				'''CREATE DATABASE IF NOT EXISTS Fancy_Hotel2;'''
+				'''CREATE DATABASE IF NOT EXISTS Fancy_Hotel;'''
 			)
 			
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Customer (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Customer (
   					username CHAR(5) NOT NULL,
   					password VARCHAR(16) NOT NULL,
   					first_name VARCHAR(20) NOT NULL,
@@ -31,7 +31,7 @@ class MysqlManager(object):
 			)
 
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Manager (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Manager (
   					username char(5) NOT NULL,
   					password varchar(16) NOT NULL,
  					PRIMARY KEY (username)
@@ -39,32 +39,32 @@ class MysqlManager(object):
 			)
 
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Credit_Card (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Credit_Card (
 				 	card_number char(16) NOT NULL,
 				 	name varchar(41) NOT NULL,
 				 	cvv char(3) NOT NULL,
 				 	expiration_date date NOT NULL,
 				 	username char(5) NOT NULL,
 				 	PRIMARY KEY (card_number),
-				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel2.Customer (username)
+				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel.Customer (username)
 				);'''
 			)
 
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Review (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Review (
 				 	review_id varchar(20) NOT NULL,
 				 	location varchar(9) NOT NULL,
 				 	comment varchar(1000) DEFAULT NULL,
 				 	rating varchar(10) NOT NULL,
 				 	username char(5) NOT NULL,
 				 	PRIMARY KEY (review_id),
-				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel2.Customer (username)
+				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel.Customer (username)
 				);'''
 			)
 
 
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Reservation (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Reservation (
 				 	reservation_id varchar(20) NOT NULL,
 				 	checkin_date date NOT NULL,
 				 	checkout_date date NOT NULL,
@@ -73,13 +73,13 @@ class MysqlManager(object):
 				 	card_number char(16) DEFAULT NULL,
 				 	cancelled_or_not char(1) DEFAULT NULL,
 				 	PRIMARY KEY (reservation_id),
-				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel2.Customer (username),
-				 	FOREIGN KEY (card_number) REFERENCES Fancy_Hotel2.Credit_Card (card_number) ON DELETE SET NULL
+				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel.Customer (username),
+				 	FOREIGN KEY (card_number) REFERENCES Fancy_Hotel.Credit_Card (card_number) ON DELETE SET NULL
 				);'''
 			)
 
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Room (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Room (
 				 	location varchar(9) NOT NULL,
 				 	room_number int(11) NOT NULL,
 				 	type varchar(20) NOT NULL,
@@ -92,14 +92,14 @@ class MysqlManager(object):
 
 
 			cursor.execute(
-				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel2.Reserves_Extra_Bed (
+				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Reserves_Extra_Bed (
 					location varchar(9) NOT NULL,
 					room_number int(11) NOT NULL,
 					reservation_id varchar(20) NOT NULL,
 					extra_bed_or_not char(1) DEFAULT NULL,
 					PRIMARY KEY (location, room_number, reservation_id),
-					FOREIGN KEY (location, room_number) REFERENCES Fancy_Hotel2.Room (location, room_number),
-					FOREIGN KEY (reservation_id) REFERENCES Fancy_Hotel2.Reservation (reservation_id)
+					FOREIGN KEY (location, room_number) REFERENCES Fancy_Hotel.Room (location, room_number),
+					FOREIGN KEY (reservation_id) REFERENCES Fancy_Hotel.Reservation (reservation_id)
 				);'''
 			)
 			
@@ -112,7 +112,7 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 			self.connection.close() #closing the initial sys connection and reconnecting to our new db
-			self.connection = mysql.connector.connect(user='root', password='password', host='127.0.0.1', database='Fancy_Hotel2')
+			self.connection = mysql.connector.connect(user='root', password='password', host='127.0.0.1', database='Fancy_Hotel')
 
 
 
@@ -138,7 +138,7 @@ class MysqlManager(object):
 		try:
 			cursor.execute(
 				'''SELECT email 
-					FROM Fancy_Hotel2.Customer 
+					FROM Fancy_Hotel.Customer 
 					WHERE email = %(email)s''',
 					{'email': email}
 			)
@@ -154,7 +154,7 @@ class MysqlManager(object):
 		cursor = self.connection.cursor()
 		try:
 			cursor.execute(
-				'''INSERT INTO Fancy_Hotel2.Customer (username, email, password, first_name, last_name)
+				'''INSERT INTO Fancy_Hotel.Customer (username, email, password, first_name, last_name)
 				VALUES (%(username)s, %(email)s, %(password)s, %(first_name)s, %(last_name)s)''',
 				{'username': username, 'email': email, 'password': password, 'first_name': firstName, 'last_name': lastName}
 			)
@@ -195,8 +195,28 @@ class MysqlManager(object):
 			else:
 				print "you shouldn't be here. Names should only start with C or M."
 				return False
-
-
-
 		finally:
 			cursor.close()
+
+	def search_rooms(self, location, checkinDate):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''SELECT * 
+				FROM Fancy_Hotel.Room 
+				WHERE (location, room_number) NOT IN (
+					SELECT r.location, r.room_number 
+					FROM Fancy_Hotel.Room AS r
+					JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
+					ON bed.location = r.location AND bed.room_number = r.room_number AND res.reservation_id = bed.reservation_id
+					WHERE r.location = %(location)s AND res.checkin_date >= %(checkinDate)s AND res.checkout_date <= %(checkoutDate)s
+				)''',
+				{'location': location, 'checkinDate': checkinDate, 'checkoutDate':checkoutDate}
+			)
+
+			#>= DATE('2015-11-24') (the mock checkin date)
+			#DATE('2015-11-29') (the mock checkout date)
+		finally:
+			cursor.close()
+
+	}

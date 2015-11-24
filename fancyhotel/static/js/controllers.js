@@ -36,7 +36,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 	
 })
 
-.controller('loginController', function($rootScope, $scope, authFactory){
+.controller('loginController', function($rootScope, $scope, authFactory, $window){
 	$scope.submit = function(){
 		response = authFactory.Login({
 			"username": $scope.username,
@@ -47,8 +47,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 			if(data["result"] == true){
 				$rootScope.currentUser = $scope.username;
 				console.log("login success!");
+				console.log("redirecting...");
+				$window.location.href='#/portal';
+
 			}
 			else{
+				console.log("login failed");
 			//do something else, they failed to log in.
 			}
 		});
