@@ -29,7 +29,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 			"lastName": $scope.lastName
 
 		});
-
+		console.log("account created, being redirected to login screen for official login");
+		$window.location.href='#/login';
 		//deal with promise response.$promise.then
 
 	}
