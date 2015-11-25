@@ -18,7 +18,7 @@ registerModule.factory('authFactory', function($resource){
 angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 
 
-.controller('registerController', function($scope, authFactory) {
+.controller('registerController', function($scope, authFactory, $window) {
 
 	$scope.submit = function() {
 		response = authFactory.Register({
@@ -27,10 +27,19 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 			"password": $scope.password,
 			"firstName": $scope.firstName,
 			"lastName": $scope.lastName
-
 		});
-		console.log("account created, being redirected to login screen for official login");
-		$window.location.href='#/login';
+
+		response.$promise.then(function(data)
+		{
+			if(data["result"] == true){
+				console.log("account created, being redirected to login screen for official login");
+				$window.location.href='#/login';
+			}
+			else{
+				console.log("account registration failed");
+			}
+		});
+		
 		//deal with promise response.$promise.then
 
 	}
@@ -66,7 +75,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule'])
 .config(function($routeProvider) { //routing needs to be on a server in order to run
 	$routeProvider
 	.when('/',{
-		templateUrl: 'static/views/login.html',
+		templateUrl: 'static/views/welcome.html',
 	})
 	.when('/login', {
 		templateUrl: 'static/views/login.html',

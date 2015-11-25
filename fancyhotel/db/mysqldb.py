@@ -198,7 +198,7 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def search_rooms(self, location, checkinDate):
+	def search_rooms(self, location, checkinDate, checkoutDate):
 		cursor = self.connection.cursor()
 		try:
 			cursor.execute(
@@ -209,12 +209,53 @@ class MysqlManager(object):
 					FROM Fancy_Hotel.Room AS r
 					JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
 					ON bed.location = r.location AND bed.room_number = r.room_number AND res.reservation_id = bed.reservation_id
-					WHERE r.location = %(location)s AND res.checkin_date >= %(checkinDate)s AND res.checkout_date <= %(checkoutDate)s
+					WHERE r.location = %(location)s AND res.checkin_date >= %(checkinDate)s AND res.checkout_date <= %(checkoutDate)s AND res.cancelled_or_not = 0
 				)''',
 				{'location': location, 'checkinDate': checkinDate, 'checkoutDate':checkoutDate}
 			)
 
+			rows = cursor.fetchall()
+			rooms = []
+			for (location, room_number, room_type, cost, capacity, extra_bed_price) in rows:
+				rooms.append(
+					{
+						"location" : location, 
+						"room_number": room_number, 
+						"room_type": room_type, 
+						"cost": cost, 
+						"capacity": capacity, 
+						"extra_bed_price": extra_bed_price
+					}
+				)
+
+			return rooms
+
 			#>= DATE('2015-11-24') (the mock checkin date)
 			#DATE('2015-11-29') (the mock checkout date)
+		finally:
+			cursor.close()
+
+
+
+	def reservation_report(self):
+		cursor = self.connection.cursor()
+		try:	
+			cursor.execute(
+				'''SELECT MONTH(checkin_date), bed.location, count(*) 
+				FROM Fancy_Hotel.Reservation AS res
+				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed)
+				ON res.reservation_id = bed.reservation_id
+				GROUP BY MONTH(checkin_date), bed.location
+				'''
+			)
+			rows = cursor.fetchall()
+			report = {}
+			for month, location, count in rows:
+				if month not in report:
+					report[month] = {}
+				report[month][location] = count
+
+			return report
+
 		finally:
 			cursor.close()

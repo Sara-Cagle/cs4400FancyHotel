@@ -1,31 +1,32 @@
-<h1>Make an account. Register here. Managers don't need to reg, though</h1>
+<h1>Register new Fancy Hotel Account</h1>
 
 <div class="container">
   <h2>User registration</h2>
-  <form role="form" ng-submit="submit()">
+  <form role="form" ng-submit="submit()" name="register">
   	<div class="form-group">
       <label for="username">Username:</label>
-      <input type="username" class="form-control" placeholder="Username" ng-model="username">
+      <input type="username" class="form-control" placeholder="Username" ng-model="username" required ng-pattern="/^C[0-9a-zA-Z]{4}$/">
+      Usernames must start with a C followed by 4 letters or numbers.
     </div>
     <div class="form-group">
       <label for="username">First Name:</label>
-      <input type="name" class="form-control" placeholder="First name" ng-model="firstName">
+      <input type="name" class="form-control" placeholder="First name" ng-model="firstName" required>
     </div>
     <div class="form-group">
       <label for="username">Last Name:</label>
-      <input type="name" class="form-control" placeholder="Last name" ng-model="lastName">
+      <input type="name" class="form-control" placeholder="Last name" ng-model="lastName" required>
     </div>
   	<div class="form-group">
       <label for="email">Email:</label>
-      <input type="email" class="form-control" placeholder="Email" ng-model="email">
+      <input type="email" class="form-control" placeholder="Email" ng-model="email" required>
     </div>
     <div class="form-group">
       <label for="password">Password:</label>
-      <input type="password" class="form-control" placeholder="Password" ng-model="password">
+      <input type="password" class="form-control" placeholder="Password" ng-model="password" required>
     </div>
     <div class="form-group">
       <label for="password">Confirm password:</label>
-      <input type="password" class="form-control" placeholder="Confirm password">
+      <input type="password" class="form-control" placeholder="Confirm password" required>
     </div>
     <button type="submit" class="btn btn-default">Register</button>
   </form>
