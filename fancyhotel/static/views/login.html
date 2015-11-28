@@ -1,5 +1,10 @@
 <h1>Login to your Fancy Hotel account</h1>
 
+<div ng-show="{{loggedInBool}}">
+  You're already logged in! Please proceed to the <a href="#/portal">user portal</a>
+</div>
+
+<div ng-hide="{{loggedInBool}}">
 <div class="container">
   <form role="form" ng-submit="submit()">
     <div class="form-group">
@@ -15,4 +20,5 @@
 
   New user? <a href="#/register">Register Here</a>
 
+</div>
 </div>

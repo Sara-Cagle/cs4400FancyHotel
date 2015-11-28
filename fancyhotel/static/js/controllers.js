@@ -38,8 +38,36 @@ portalModule.factory('reportFactory', function($resource){
 
 angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'portalModule', 'ngResource'])
 
+.run(function($rootScope) {
+    $rootScope.currentUser = '';
+	$rootScope.userType = '';
+	$rootScope.alreadyLoggedIn = function(){
+		if($rootScope.currentUser != ''){
+			console.log("you're already logged in.")
+			return true;
+		}
+		console.log("you're not logged in yet.")
+		return false;
+	}
 
-.controller('registerController', function($scope, authFactory, $window) {
+	$rootScope.getUserType = function(){
+		var userType = $rootScope.currentUser.charAt(0);
+		if(userType == 'M' || userType == 'm' ){
+			$rootScope.userType = "manager";
+		}
+		else if(userType == 'C' || userType == 'c'){
+			$rootScope.userType = "customer";
+		}
+		else{
+			$rootScope.userType = "invalid user type";
+		}
+	}
+})
+
+
+.controller('registerController', function($rootScope, $scope, authFactory, $window) {
+	$rootScope.alreadyLoggedIn();
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 
 	$scope.myRegex = /C[a-zA-Z0-9]{4}/;
 
@@ -62,14 +90,15 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 				console.log("account registration failed");
 			}
 		});
-		
-		//deal with promise response.$promise.then
 
 	}
 	
 })
 
 .controller('loginController', function($rootScope, $scope, authFactory, $window){
+	$rootScope.alreadyLoggedIn();
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+
 	$scope.submit = function(){
 		response = authFactory.Login({
 			"username": $scope.username,
@@ -79,6 +108,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 		response.$promise.then(function(data){
 			if(data["result"] == true){
 				$rootScope.currentUser = $scope.username;
+				$rootScope.getUserType();
 				console.log("login success!");
 				console.log("redirecting...");
 				$window.location.href='#/portal';
@@ -93,20 +123,21 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 
 })
 
-.controller('portalController', function($rootScope, $window){
+.controller('portalController', function($rootScope){
+	$rootScope.alreadyLoggedIn();
 	$rootScope.currentUser;
-	
-	//onclick of this from the portal, run this function
+	$rootScope.getUserType();
+	//$rootScope.userType;
 
 
 })
 
 .controller('reportController', function($rootScope, $scope, reportFactory){
 	$rootScope.currentUser;
-	//var userType = $rootScope.currentUser.charAt(0); 
+
 	$scope.data = {};
 	$scope.emptyTable = "";
-	/*if(userType!='M'){
+	/*if($rootScope.userType!="manager"){
 		console.log("You must be a manager to do this.");
 		return;
 	}*/
@@ -114,12 +145,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 	response.$promise.then(function(data){
 		$scope.data=data;
 	})
-	if($scope.data = {}){
+
+	if(Object.keys($scope.data).length==0){
 		$scope.emptyTable="Sorry, no results were found!";
 	}
 
 	$scope.getPopularRoomCatReport = function(){
-		if(userType!='M'){
+		if($rootScope.userType!="manager"){
 			console.log("You must be a manager to do this.");
 			return;
 		}
@@ -127,7 +159,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 	};
 	//onclick of this from the portal, run this function
 	$scope.getRevenueReport = function(){
-		if(userType!='M'){
+		if($rootScope.userType!="manager"){
 			console.log("You must be a manager to do this.");
 			return;
 		}
@@ -151,8 +183,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 		controller: 'registerController'
 	})
 	.when('/portal', { //the page that the user can pick their task on
-		templateUrl: 'static/views/selectionPage.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/selectionPage.html',
+		controller: 'portalController'
 	})
 	.when('/searchroom', {
 		templateUrl: 'static/views/searchRoom.html'//,
