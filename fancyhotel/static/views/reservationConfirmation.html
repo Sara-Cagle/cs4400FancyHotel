@@ -1,1 +1,16 @@
-CONFIRMATION SCREEN
+<?php
+                srand ((double) microtime() * 1000000);
+                $random5 = rand(10000,99999);
+                echo $random5;
+            ?> 
+<html>
+<h1>Confirmation Screen</h1>
+<div class="container">	
+	<div class="form-group">
+            <label for="confirmationid">Confirmation ID: <?= rand(10000,99999); ?> </label>
+            
+           
+           <input type="hidden" name="type" value="<?php echo $random5; ?>" >
+    </div>
+</div>
+</html>
