@@ -1,1 +1,34 @@
-PAYMENT INFORMATION
+<h1>Payment Information</h1>
+<div class="container">	
+	    <h1>Add card</h1>
+        <div class="form-group">
+            <label for="cardname">Name on the card</label>
+            <input type="cardname" class="form-control" ng-model="username" required>
+        </div>
+        <div class="form-group">
+            <label for="cardname">Card Number</label>
+            <input type="cardnum" class="form-control" ng-model="usernum" required>
+        </div>
+        <div class="form-group">
+            <label for="expiredate">Expiration Date</label>
+            <input type="expiredate" class="form-control" placeholder="xx/xxxx" ng-model="expiredate" required>
+        </div>
+        <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input type="cvv" class="form-control" placeholder="xxx" ng-model="cvv" required>
+        </div>
+        <button type="submit" class="btn btn-default">Save</button>
+</div>
+
+<div ng-show="{{cardexists}}">	
+	<div class="container">	
+	    <h1>Delete card</h1>
+        <div class="form-group">
+        	<label for="4cardnum">Card number</label>
+            <select>
+                <option value="4cardnum">{{4cardnum}}</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-default">Delete</button>
+    </div>
+</div>
