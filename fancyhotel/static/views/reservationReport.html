@@ -1,1 +1,22 @@
 <h1>Reservation Report</h1>
+<table>
+	<tr ng-repeat="(month, location) in data">
+		<td>
+			{{month}}, <ul><li ng-repeat="(place, count) in location"> {{place}}, {{count}}</li></td>
+	</tr>
+</table>
+
+<hr>
+
+<table>
+  <tr>
+    <th>Month</th>
+    <th>Location</th>
+    <th>Count</th>
+  </tr>
+  <tr ng-repeat="(month, location) in data">
+    <td rowspan="2" ng-repeat="(place, count) in location">{{month}}</td>
+    <td>{{place}}</td>
+    <td>{{count}}</td>
+  </tr>
+</table>

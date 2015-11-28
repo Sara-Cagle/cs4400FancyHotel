@@ -24,6 +24,7 @@ api.add_resource(restapi.SearchRoomsResource, '/api/searchRoom')
 #api.add_resource(restapi.GiveReviewResource, '#')
 api.add_resource(restapi.ReservationReportResource, '/api/reports/reservation')
 #api.add_resource(restapi.PopularRoomReportResource, '/api/reports/popularRoom')
+#api.add_resource(restapi.PopularRoomReportResource, '/api/reports/revenue')
 
 
 if __name__ == '__main__':
