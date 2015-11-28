@@ -1,10 +1,25 @@
-<h1>Selection Page View</h1><br /><br />
+<!-- <h1>Selection Page View</h1><br /><br />
 
 <p>Here we can select what we want to do. The main page after login</p>
 <p>This will likely have two different views itself based on who is logged in, the manager or customer</p>
 <p>Or maybe just have two views but they're toggled by a customer/manager variable?</p>
 
-<p>But that's not secure--do we need to implement security?</p>
+<p>But that's not secure--do we need to implement security?</p> -->
 
 <h1>Hello {{currentUser}} ! <br />
+
+<div ng-show="{{customer}}">
+  <p><a href="#/reserve">Make a new reservation</a> </p>
+  <p><a href="#/update">Update your reservation</a> </p>
+  <p><a href="#/cancel">Cancel reservation</a> </p>
+  <p><a href="#/provideFeedback">Provide feedback</a> </p>
+  <p><a href="#/viewFeedback">view feedback</a> </p>
+</div>
+
+<div ng-show="{{manager}}">
+  <p><a href="#/resReport">View reservation Report</a> </p>
+  <p><a href="#/popCatReport">View popular room category report</a> </p>
+  <p><a href="#/revenueReport">View Revenue Report</a> </p>
+</div>
+
 <h1>You are a {{userType}}!</h1>

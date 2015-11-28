@@ -194,6 +194,14 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 		templateUrl: 'static/views/makeReservation.html'//,
 		/*controller: 'contentController'*/
 	})
+	.when('/update', {
+		templateUrl: 'static/views/updateReservation.html'//,
+		/*controller: 'contentController'*/
+	})
+	.when('/cancel', {
+		templateUrl: 'static/views/cancelReservation.html'//,
+		/*controller: 'contentController'*/
+	})
 	.when('/payment', {
 		templateUrl: 'static/views/payment.html'//,
 		/*controller: 'contentController'*/
@@ -215,8 +223,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 		controller: 'reportController'
 	})
 	.when('/revenueReport', {
-		templateUrl: 'static/views/revenueReport.html',
-		controller: 'reportController'
+		templateUrl: 'static/views/revenueReport.html'
+	})
+	.when('/provideFeedback', {
+		templateUrl: 'static/views/provideFeedback.html'
+	})
+	.when('/viewFeedback', {
+		templateUrl: 'static/views/viewFeedback.html'
 	});
 })
 
