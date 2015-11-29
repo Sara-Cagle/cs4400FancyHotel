@@ -1,4 +1,5 @@
 import mysql.connector
+from time import strftime
 
 class MysqlManager(object):
 
@@ -69,9 +70,10 @@ class MysqlManager(object):
 				 	checkin_date date NOT NULL,
 				 	checkout_date date NOT NULL,
 				 	total_cost float NOT NULL,
-				 	username char(5) NOT NULL,
+			 		username char(5) NOT NULL,
 				 	card_number char(16) DEFAULT NULL,
 				 	cancelled_or_not char(1) DEFAULT NULL,
+				 	cancelled_date date DEFAULT NULL,
 				 	PRIMARY KEY (reservation_id),
 				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel.Customer (username),
 				 	FOREIGN KEY (card_number) REFERENCES Fancy_Hotel.Credit_Card (card_number) ON DELETE SET NULL
@@ -235,7 +237,139 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
+	def get_rooms_for_reservation(self, reservation_id):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''SELECT room.location, room.room_number, room.type, room.room_cost, room.capacity, room.extra_bed_price, bed.extra_bed_or_not FROM Fancy_Hotel.Room as room
+				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
+				ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
+				WHERE res.reservation_id = %(reservation_id)s
+				''',
+				{'reservation_id': reservation_id}
+			)
+			rows = cursor.fetchall()
+			rooms = []
+			for location, room_number, room_type, room_cost, capacity, extra_bed_price, extra_bed_or_not in rows:
+				rooms.append({
+					"location" : location, 
+					"room_number": room_number, 
+					"room_type": room_type, 
+					"cost": room_cost, 
+					"capacity": capacity, 
+					"extra_bed_price": extra_bed_price, 
+					"extra_bed_or_not": extra_bed_or_not
+				})
+			return rooms
+		finally:
+			cursor.close()
 
+	def get_reservation(self, reservation_id, include_cancelled):
+		cursor = self.connection.cursor()
+		try:
+			if include_cancelled:
+				cursor.execute(
+					'''SELECT *
+					FROM Fancy_Hotel.Reservation
+					WHERE reservation_id = %(reservation_id)s
+					''',
+					{'reservation_id': reservation_id}
+				)
+			else:
+				cursor.execute(
+					'''SELECT *
+					FROM Fancy_Hotel.Reservation
+					WHERE reservation_id = %(reservation_id)s AND cancelled_or_not = 0
+					''',
+					{'reservation_id': reservation_id}
+				)
+
+			rows = cursor.fetchall()
+			if len(rows) > 0:
+				id, checkin_date, checkout_date, total_cost, username, card_number, cancelled_or_not, cancelled_date = rows[0]
+				rooms = self.get_rooms_for_reservation(id)
+				return {
+					"reservation_id": id,
+					"checkin_date": str(checkin_date),
+					"checkout_date": str(checkout_date),
+					"total_cost": total_cost,
+					"username": username,
+					"card_number": card_number,
+					"cancelled_or_not": cancelled_or_not,
+					"cancelled_date": str(cancelled_date),
+					"rooms": rooms
+				}
+			else:
+				return {}
+		finally:
+			cursor.close()
+
+	def update_reservation(self, reservation_id, checkin_date, checkout_date):
+		cursor = self.connection.cursor()
+		try:
+			reservation = self.get_reservation(reservation_id, False)
+			if reservation:
+				cursor.execute(
+					'''UPDATE Fancy_Hotel.Reservation
+					SET checkin_date = %(checkin_date)s, checkout_date = %(checkout_date)s
+					WHERE reservation_id = %(reservation_id)s
+					''',
+					{"reservation_id": reservation_id, "checkin_date":checkin_date, "checkout_date": checkout_date}
+				)
+				self.connection.commit()
+				return "Reservation updated", True
+			else:
+				return "This reservation does not exist", False
+		finally:
+			cursor.close()
+
+	def cancel_reservation(self, reservation_id):
+		cursor = self.connection.cursor()
+		try:
+			reservation = self.get_reservation(reservation_id)
+			if reservation:
+				cursor.execute(
+					'''UPDATE Fancy_Hotel.Reservation
+					SET cancelled_or_not = 1, cancelled_date = CURDATE()
+					WHERE reservation_id = %(reservation_id)s 
+						AND cancelled_or_not = 0
+					''',
+					{'reservation_id': reservation_id}
+				)
+				self.connection.commit()
+
+				if cursor.rowcount > 0:
+					return "", True
+				else:
+					return "This reservation has already been cancelled", False
+			else:
+				return "This reservation does not exist", False
+		finally:
+			cursor.close()
+
+	def is_room_free(self, room_number, location, checkin_date, checkout_date, exclude_reservation):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''SELECT r.location, r.room_number 
+				FROM Fancy_Hotel.Room AS r
+				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
+				ON bed.location = r.location 
+					AND bed.room_number = r.room_number 
+					AND res.reservation_id = bed.reservation_id
+				WHERE r.room_number = %(room_number)s 
+					AND r.location = %(location)s 
+					AND res.checkin_date >= %(checkinDate)s 
+					AND res.checkout_date <= %(checkoutDate)s 
+					AND res.cancelled_or_not = 0 
+					AND res.reservation_id != %(exclude_reservation)s 
+				''',
+				{'room_number': room_number, 'location': location, 'checkinDate': checkin_date, 'checkoutDate': checkout_date, 'exclude_reservation': exclude_reservation}
+			)
+			rows = cursor.fetchall()
+			return len(rows) == 0 #if the room does not occur in our query, then there will be returned an empty table, true
+		finally:
+			cursor.close()
 
 	def reservation_report(self):
 		cursor = self.connection.cursor()

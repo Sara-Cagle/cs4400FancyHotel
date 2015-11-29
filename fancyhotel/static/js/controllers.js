@@ -1,6 +1,6 @@
-var registerModule = angular.module('registerModule', ['ngResource']);
+var resourceModule = angular.module('resourceModule', ['ngResource']);
 
-registerModule.factory('authFactory', function($resource){
+resourceModule.factory('authFactory', function($resource){
 	return $resource('/api', {}, {
 		Register: {
 			method: 'POST',
@@ -14,9 +14,7 @@ registerModule.factory('authFactory', function($resource){
 	})
 })
 
-var portalModule = angular.module('portalModule', ['ngResource']);
-
-portalModule.factory('reportFactory', function($resource){
+resourceModule.factory('reportFactory', function($resource){
 	return $resource('/api', {}, {
 			ResReport: {
 				method: 'GET',
@@ -33,10 +31,36 @@ portalModule.factory('reportFactory', function($resource){
 	})
 })
 
+resourceModule.factory('reservationFactory', function($resource){
+	return $resource('/api', {}, {
+		SearchRooms:{
+			method: 'GET',
+			url: '/api/searchRoom'
+		},
+		GetReservation:{
+			method:'GET',
+			url: '/api/reservation/:reservation_id'
+		},
+		UpdateReservationConfirm:{
+			method: 'GET',
+			url: '/api/reservation/:reservation_id/availability'
+		}
+		UpdateReservation:{
+			method:'PUT',
+			url: '/api/reservation/:reservation_id'
+		}
+		CancelReservation:{
+			method:'GET',
+			url: '/api/reservation/:reservation_id/cancel'
+		}
+	})
+})
 
 
 
-angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'portalModule', 'ngResource'])
+
+
+angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 .run(function($rootScope) {
     $rootScope.currentUser = '';
@@ -123,24 +147,69 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 
 })
 
-.controller('portalController', function($rootScope){
+.controller('portalController', function($rootScope, $scope){
 	$rootScope.alreadyLoggedIn();
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$rootScope.currentUser;
 	$rootScope.getUserType();
-	//$rootScope.userType;
+	$rootScope.userType;
 
 
 })
 
+.controller('reservationController', function($rootScope, $scope, reservationFactory){
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+	
+	$scope.submit = function(){
+		searchRoomsresponse = reservationFactory.SearchRooms({
+			"location": $scope.location,
+			"checkIn": $scope.checkIn,
+			"checkOut": $scope.checkOut
+		});
+	//handle promise
+	};
+
+	$scope.findReservation = function(){
+		getReservationResponse = reservationFactory.GetReservation({
+			"reservation_id": $scope.reservationID
+		});
+	//handle promise
+	};
+
+
+	$scope.searchAvailability = function(){
+		updateReservationResponse = reservationFactory.UpdateReservationConfirm({
+			"reservation_id": $scope.reservationID,
+			"checkIn": $scope.checkIn,
+			"checkOut": $scope.checkOut
+		});
+	//handle promise
+	};
+
+	$scope.updateReservation = function(){
+		updateReservationResponse = reservationFactory.UpdateReservation({
+			"reservation_id": $scope.reservationID,
+			"checkIn": $scope.checkIn,
+			"checkOut": $scope.checkOut
+		});
+	};
+
+	$scope.cancelReservation = function(){
+		cancelReservationResponse = reservationFactory.CancelReservation({
+			"reservaton_id": $scope.reservationID
+		});
+	//handle promise
+	}
+
+})
+
+
 .controller('reportController', function($rootScope, $scope, reportFactory){
-	$rootScope.currentUser;
+	//$rootScope.currentUser;
 
 	$scope.data = {};
 	$scope.emptyTable = "";
-	/*if($rootScope.userType!="manager"){
-		console.log("You must be a manager to do this.");
-		return;
-	}*/
+
 	response = reportFactory.ResReport(); 
 	response.$promise.then(function(data){
 		$scope.data=data;
@@ -151,18 +220,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 	}
 
 	$scope.getPopularRoomCatReport = function(){
-		if($rootScope.userType!="manager"){
-			console.log("You must be a manager to do this.");
-			return;
-		}
+
 		$scope.popularRooms = {};
 	};
 	//onclick of this from the portal, run this function
 	$scope.getRevenueReport = function(){
-		if($rootScope.userType!="manager"){
-			console.log("You must be a manager to do this.");
-			return;
-		}
+
 		$scope.revenue= {};
 	};
 
@@ -187,20 +250,20 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 		controller: 'portalController'
 	})
 	.when('/searchroom', {
-		templateUrl: 'static/views/searchRoom.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/searchRoom.html',
+		controller: 'reservationController'
 	})
 	.when('/reserve', {
-		templateUrl: 'static/views/makeReservation.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/searchRoom.html',
+		controller: 'reservationController'
 	})
 	.when('/update', {
-		templateUrl: 'static/views/updateReservation.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/updateReservation.html',
+		controller: 'reservationController'
 	})
 	.when('/cancel', {
-		templateUrl: 'static/views/cancelReservation.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/cancelReservation.html',
+		controller: 'reservationController'
 	})
 	.when('/payment', {
 		templateUrl: 'static/views/payment.html'//,
