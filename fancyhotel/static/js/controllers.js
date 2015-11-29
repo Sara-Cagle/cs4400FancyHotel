@@ -123,11 +123,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 
 })
 
-.controller('portalController', function($rootScope){
+.controller('portalController', function($rootScope, $scope){
 	$rootScope.alreadyLoggedIn();
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$rootScope.currentUser;
 	$rootScope.getUserType();
-	//$rootScope.userType;
+	$rootScope.userType;
 
 
 })

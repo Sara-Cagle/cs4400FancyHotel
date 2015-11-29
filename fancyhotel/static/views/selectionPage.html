@@ -5,10 +5,16 @@
 <p>Or maybe just have two views but they're toggled by a customer/manager variable?</p>
 
 <p>But that's not secure--do we need to implement security?</p> -->
+<div ng-hide="{{loggedInBool}}" important>
+	<h1>You aren't logged in yet! Please login to view this page.</h1>
+</div>
 
-<h1>Hello {{currentUser}} ! <br />
+<div ng-show="{{loggedInBool}}" important>
+<h1>Hello {{currentUser}} ! </h1><br />
 
-<div ng-show="{{customer}}">
+
+
+<div ng-show="{{userType=='customer'}}"> (this was customer, now it's userType)
   <p><a href="#/reserve">Make a new reservation</a> </p>
   <p><a href="#/update">Update your reservation</a> </p>
   <p><a href="#/cancel">Cancel reservation</a> </p>
@@ -16,10 +22,11 @@
   <p><a href="#/viewFeedback">view feedback</a> </p>
 </div>
 
-<div ng-show="{{manager}}">
+<div ng-show="{{userType=='manager'}}"> (this was manager, now it's userType))
   <p><a href="#/resReport">View reservation Report</a> </p>
   <p><a href="#/popCatReport">View popular room category report</a> </p>
   <p><a href="#/revenueReport">View Revenue Report</a> </p>
 </div>
 
 <h1>You are a {{userType}}!</h1>
+</div>
