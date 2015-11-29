@@ -65,7 +65,8 @@ class SearchRoomsResource(Resource):
 		return db.mysqldb.search_rooms(location, checkIn, checkOut)
 
 class ReservationReportResource(Resource):
-
 	def get(self):
 		return db.mysqldb.reservation_report()
+
+
 

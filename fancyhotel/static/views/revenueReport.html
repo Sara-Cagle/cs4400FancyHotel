@@ -1,1 +1,18 @@
 <h1>Revenue Report</h1>
+
+<div ng-hide="{{loggedInBool}}" important>
+	<h1>You aren't logged in yet! Please login to view this page.</h1>
+</div>
+
+<h1>Hello {{currentUser}}! </h1><br />
+
+<div ng-show="{{userType=='customer'}}">
+  Only managers can vew reports. Please login to a manager account to view this page.
+</div>
+
+<div ng-show="{{userType=='manager'}}">
+
+put content here.
+
+
+</div>

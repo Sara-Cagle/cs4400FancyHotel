@@ -1,2 +1,49 @@
-CANCEL RESERVATION
-Maybe break into other parts?
+<h1>Cancel Existing Reservation</h1>
+
+<div ng-hide="{{loggedInBool}}" important>
+	<h1>You aren't logged in yet! Please login to view this page.</h1>
+</div>
+
+
+<div ng-show="{{userType=='customer'}}">
+Hello {{currentUser}}!<br />
+
+
+Want to cancel a reservation? Please provide your Reservation ID number.
+
+<form class="form-inline" role="form" ng-submit="findReservation()">
+    <div class="form-group">
+      <label for="resID">Reservation ID:</label>
+      <input class="form-control" placeholder="Reservation ID" ng-model="resID" required>
+    </div>
+    <button type="submit" class="btn btn-default">Find My Reservation</button>
+</form>
+
+Haven't reserved a room yet? <a href="#/searchroom">Search for available rooms here.</a><br /><br />
+
+
+--------------------------------------------Clicking will give us the next set of HTML<br /><br /><br />
+
+
+<!--Make this into some table-->
+
+Checkin date: { {Current Start Date Goes Here} }<br />
+Checkout date: { {Current End Date Goes Here} }<br /><br />
+
+[The table of this reservation is here, from the db]<br /><br />
+
+<form ng-submit="cancelReservation()">
+	Total cost of reservation : { {Cost of the reservation} } (all of these need ng-model)<br />
+	Date Cancelled : { { Calculate today's date}}<br />
+	Refunded amount: { { Refund amount, calculated against today's date}}<br />
+
+	<button type="submit" class="btn btn-default">Cancel Reservation</button>
+</form>
+
+
+
+</div>
+
+<div ng-show="{{userType=='manager'}}">
+  Only customers can update reservations. Please login to your customer account to view this page.
+</div>

@@ -33,6 +33,15 @@ portalModule.factory('reportFactory', function($resource){
 	})
 })
 
+portalModule.factory('reservationFactory', function($resource){
+	return $resource('/api', {},{
+		SearchRooms:{
+			method: 'GET',
+			url: '/api/searchRoom'
+		}
+	})
+})
+
 
 
 
@@ -133,15 +142,18 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 
 })
 
+.controller('reservationController', function($rootScope, $scope, reservationFactory){
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+
+})
+
+
 .controller('reportController', function($rootScope, $scope, reportFactory){
-	$rootScope.currentUser;
+	//$rootScope.currentUser;
 
 	$scope.data = {};
 	$scope.emptyTable = "";
-	/*if($rootScope.userType!="manager"){
-		console.log("You must be a manager to do this.");
-		return;
-	}*/
+
 	response = reportFactory.ResReport(); 
 	response.$promise.then(function(data){
 		$scope.data=data;
@@ -152,18 +164,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 	}
 
 	$scope.getPopularRoomCatReport = function(){
-		if($rootScope.userType!="manager"){
-			console.log("You must be a manager to do this.");
-			return;
-		}
+
 		$scope.popularRooms = {};
 	};
 	//onclick of this from the portal, run this function
 	$scope.getRevenueReport = function(){
-		if($rootScope.userType!="manager"){
-			console.log("You must be a manager to do this.");
-			return;
-		}
+
 		$scope.revenue= {};
 	};
 
@@ -188,20 +194,20 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 		controller: 'portalController'
 	})
 	.when('/searchroom', {
-		templateUrl: 'static/views/searchRoom.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/searchRoom.html',
+		controller: 'reservationController'
 	})
 	.when('/reserve', {
-		templateUrl: 'static/views/makeReservation.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/searchRoom.html',
+		controller: 'reservationController'
 	})
 	.when('/update', {
-		templateUrl: 'static/views/updateReservation.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/updateReservation.html',
+		controller: 'reservationController'
 	})
 	.when('/cancel', {
-		templateUrl: 'static/views/cancelReservation.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/cancelReservation.html',
+		controller: 'reservationController'
 	})
 	.when('/payment', {
 		templateUrl: 'static/views/payment.html'//,
