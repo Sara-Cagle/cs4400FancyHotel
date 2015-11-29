@@ -121,5 +121,13 @@ class ReservationReportResource(Resource):
 	def get(self):
 		return db.mysqldb.reservation_report()
 
+class PopularRoomReportResource(Resource):
+	def get(self):
+		return db.mysqldb.room_report()
+
+class RevenueReportResource(Resource):
+	def get(self):
+		return db.mysqldb.revenue_report()
+
 
 

@@ -103,10 +103,7 @@ class MysqlManager(object):
 					FOREIGN KEY (location, room_number) REFERENCES Fancy_Hotel.Room (location, room_number),
 					FOREIGN KEY (reservation_id) REFERENCES Fancy_Hotel.Reservation (reservation_id)
 				);'''
-			)
-			
-
-
+			)		
 			#fill db with existing data here: managers, locations, etc
 
 
@@ -393,3 +390,71 @@ class MysqlManager(object):
 
 		finally:
 			cursor.close()
+
+	def room_report(self):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''CREATE OR REPLACE VIEW reservation_by_category 
+				AS(SELECT Month(res.checkin_date) as mth, room.type as type, room.location as location, count(room.type) as cnt
+					FROM Fancy_Hotel.Room as room
+					JOIN (Fancy_Hotel.Reserves_Extra_Bed as bed, Fancy_Hotel.Reservation as res)
+					ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
+					GROUP BY Month(res.checkin_date), room.location, room.type);
+				'''
+			)
+			self.connection.commit()
+
+			cursor.execute(
+				'''SELECT rbc.mth, rbc.location, rbc.type, rbc.cnt 
+				FROM reservation_by_category as rbc
+				INNER JOIN
+				    (SELECT mth, location, MAX(cnt) AS cnt
+				    FROM reservation_by_category
+				    GROUP BY mth, location) as groupedrbc 
+				ON rbc.mth = groupedrbc.mth AND rbc.location = groupedrbc.location AND rbc.cnt = groupedrbc.cnt;
+				'''
+			)
+			rows = cursor.fetchall()
+			report = {}
+			for month, location, room_type, count in rows:
+				if month not in report:
+					report[month] = {}
+				if location not in report[month]:
+					report[month][location] = []
+
+				report[month][location].append({"type": room_type, "count": count})
+
+			return report
+
+		finally:
+			cursor.close()
+
+	def revenue_report(self):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''SELECT Month(res.checkin_date) as month, 
+				room.location as location, 
+				(SUM(room.room_cost) + SUM(CASE 
+					WHEN bed.extra_bed_or_not = 1 
+						THEN room.extra_bed_price 
+					ELSE 0 
+					END)) as cost
+				FROM Fancy_Hotel.Room as room
+				JOIN (Fancy_Hotel.Reserves_Extra_Bed as bed, Fancy_Hotel.Reservation as res)
+				ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
+				GROUP BY Month(res.checkin_date), room.location;
+				'''
+			)
+			rows = cursor.fetchall()
+			report = {}
+			for month, location, cost in rows:
+				if month not in report:
+					report[month] = {}
+				report[month][location] = cost
+
+			return report
+		finally:
+			cursor.close()
+

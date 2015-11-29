@@ -24,8 +24,8 @@ api.add_resource(restapi.CancelReservationResource, '/api/reservation/<string:re
 #api.add_resource(restapi.ViewReviewResource, '#')
 #api.add_resource(restapi.GiveReviewResource, '#')
 api.add_resource(restapi.ReservationReportResource, '/api/reports/reservation')
-#api.add_resource(restapi.PopularRoomReportResource, '/api/reports/popularRoom')
-#api.add_resource(restapi.PopularRoomReportResource, '/api/reports/revenue')
+api.add_resource(restapi.PopularRoomReportResource, '/api/reports/popularRoom')
+api.add_resource(restapi.RevenueReportResource, '/api/reports/revenue')
 
 
 if __name__ == '__main__':
