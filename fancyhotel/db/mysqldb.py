@@ -331,7 +331,8 @@ class MysqlManager(object):
 				cursor.execute(
 					'''UPDATE Fancy_Hotel.Reservation
 					SET cancelled_or_not = 1, cancelled_date = CURDATE()
-					WHERE reservation_id = %(reservation_id)s AND cancelled_or_not = 0
+					WHERE reservation_id = %(reservation_id)s 
+						AND cancelled_or_not = 0
 					''',
 					{'reservation_id': reservation_id}
 				)
@@ -353,13 +354,20 @@ class MysqlManager(object):
 				'''SELECT r.location, r.room_number 
 				FROM Fancy_Hotel.Room AS r
 				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
-				ON bed.location = r.location AND bed.room_number = r.room_number AND res.reservation_id = bed.reservation_id
-				WHERE r.room_number = %(room_number)s AND r.location = %(location)s AND res.checkin_date >= %(checkinDate)s AND res.checkout_date <= %(checkoutDate)s AND res.cancelled_or_not = 0 AND res.reservation_id != %(exclude_reservation)s 
+				ON bed.location = r.location 
+					AND bed.room_number = r.room_number 
+					AND res.reservation_id = bed.reservation_id
+				WHERE r.room_number = %(room_number)s 
+					AND r.location = %(location)s 
+					AND res.checkin_date >= %(checkinDate)s 
+					AND res.checkout_date <= %(checkoutDate)s 
+					AND res.cancelled_or_not = 0 
+					AND res.reservation_id != %(exclude_reservation)s 
 				''',
 				{'room_number': room_number, 'location': location, 'checkinDate': checkin_date, 'checkoutDate': checkout_date, 'exclude_reservation': exclude_reservation}
 			)
 			rows = cursor.fetchall()
-			return len(rows) == 0
+			return len(rows) == 0 #if the room does not occur in our query, then there will be returned an empty table, true
 		finally:
 			cursor.close()
 

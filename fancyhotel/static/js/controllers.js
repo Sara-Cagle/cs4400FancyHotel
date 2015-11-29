@@ -1,6 +1,6 @@
-var registerModule = angular.module('registerModule', ['ngResource']);
+var resourceModule = angular.module('resourceModule', ['ngResource']);
 
-registerModule.factory('authFactory', function($resource){
+resourceModule.factory('authFactory', function($resource){
 	return $resource('/api', {}, {
 		Register: {
 			method: 'POST',
@@ -14,9 +14,7 @@ registerModule.factory('authFactory', function($resource){
 	})
 })
 
-var portalModule = angular.module('portalModule', ['ngResource']);
-
-portalModule.factory('reportFactory', function($resource){
+resourceModule.factory('reportFactory', function($resource){
 	return $resource('/api', {}, {
 			ResReport: {
 				method: 'GET',
@@ -33,11 +31,27 @@ portalModule.factory('reportFactory', function($resource){
 	})
 })
 
-portalModule.factory('reservationFactory', function($resource){
-	return $resource('/api', {},{
+resourceModule.factory('reservationFactory', function($resource){
+	return $resource('/api', {}, {
 		SearchRooms:{
 			method: 'GET',
 			url: '/api/searchRoom'
+		},
+		GetReservation:{
+			method:'GET',
+			url: '/api/reservation/:reservation_id'
+		},
+		UpdateReservationConfirm:{
+			method: 'GET',
+			url: '/api/reservation/:reservation_id/availability'
+		}
+		UpdateReservation:{
+			method:'PUT',
+			url: '/api/reservation/:reservation_id'
+		}
+		CancelReservation:{
+			method:'GET',
+			url: '/api/reservation/:reservation_id/cancel'
 		}
 	})
 })
@@ -45,7 +59,8 @@ portalModule.factory('reservationFactory', function($resource){
 
 
 
-angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'portalModule', 'ngResource'])
+
+angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 .run(function($rootScope) {
     $rootScope.currentUser = '';
@@ -144,6 +159,47 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'registerModule', 'por
 
 .controller('reservationController', function($rootScope, $scope, reservationFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+	
+	$scope.submit = function(){
+		searchRoomsresponse = reservationFactory.SearchRooms({
+			"location": $scope.location,
+			"checkIn": $scope.checkIn,
+			"checkOut": $scope.checkOut
+		});
+	//handle promise
+	};
+
+	$scope.findReservation = function(){
+		getReservationResponse = reservationFactory.GetReservation({
+			"reservation_id": $scope.reservationID
+		});
+	//handle promise
+	};
+
+
+	$scope.searchAvailability = function(){
+		updateReservationResponse = reservationFactory.UpdateReservationConfirm({
+			"reservation_id": $scope.reservationID,
+			"checkIn": $scope.checkIn,
+			"checkOut": $scope.checkOut
+		});
+	//handle promise
+	};
+
+	$scope.updateReservation = function(){
+		updateReservationResponse = reservationFactory.UpdateReservation({
+			"reservation_id": $scope.reservationID,
+			"checkIn": $scope.checkIn,
+			"checkOut": $scope.checkOut
+		});
+	};
+
+	$scope.cancelReservation = function(){
+		cancelReservationResponse = reservationFactory.CancelReservation({
+			"reservaton_id": $scope.reservationID
+		});
+	//handle promise
+	}
 
 })
 

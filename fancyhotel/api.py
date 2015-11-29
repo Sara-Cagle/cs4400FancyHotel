@@ -50,8 +50,8 @@ class LoginResource(Resource):
 class ReservationResource(Resource):
 	def __init__(self):
 		self.reqparse = reqparse.RequestParser()
-		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a checkIn date")
-		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a checkOut date")
+		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a check-in date")
+		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a check-out date")
 		super(ReservationResource, self).__init__()
 
 	def get(self, reservation_id):
@@ -61,19 +61,35 @@ class ReservationResource(Resource):
 		else:
 			return {"error": "No reservation found", "result": False}, 404
 
-	def put(self, reservation_id):
+	def put(self, reservation_id): #update the reservation
 		args = self.reqparse.parse_args()
 		 
 		rooms = db.mysqldb.get_rooms_for_reservation(reservation_id)
 		for room in rooms:
 			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):
 				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
+		#For the rooms in the reservation, check if each room is free during the requested times. If the room is not free, return false.
 
 		message, status = db.mysqldb.update_reservation(reservation_id, args['checkIn'], args['checkOut'])
 		if status:
 			return {"message": message, "result": status}
 		else:
 			return {"message": message, "result": status}, 400
+
+class UpdateReservationConfirmResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a check-in date")
+		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a check-out date")
+		super(UpdateReservationConfirmResource, self).__init__()
+
+	def get(self, reservation_id):
+		rooms = db.mysqldb.get_rooms_for_reservation(reservation_id)
+		for room in rooms:
+			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):
+				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
+		return {"message": "Rooms are available", "result": True, "rooms": rooms}
+
 
 
 class CancelReservationResource(Resource):
