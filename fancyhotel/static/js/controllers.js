@@ -44,11 +44,11 @@ resourceModule.factory('reservationFactory', function($resource){
 		UpdateReservationConfirm:{
 			method: 'GET',
 			url: '/api/reservation/:reservation_id/availability'
-		}
+		},
 		UpdateReservation:{
 			method:'PUT',
 			url: '/api/reservation/:reservation_id'
-		}
+		},
 		CancelReservation:{
 			method:'GET',
 			url: '/api/reservation/:reservation_id/cancel'
@@ -159,39 +159,72 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 .controller('reservationController', function($rootScope, $scope, reservationFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+	$scope.viewPart1 = true;
+	$scope.viewPart2 = false;
+	$scope.viewPart3 = false;
+	$scope.currRes ='';
+	$scope.availability={
+		"avail": '',
+		"message": ''
+	};
 	
 	$scope.submit = function(){
-		searchRoomsresponse = reservationFactory.SearchRooms({
+		searchRoomsResponse = reservationFactory.SearchRooms({
 			"location": $scope.location,
 			"checkIn": $scope.checkIn,
 			"checkOut": $scope.checkOut
 		});
 	//handle promise
+		searchRoomsResponse.$promise.then(function(data){});
 	};
 
 	$scope.findReservation = function(){
 		getReservationResponse = reservationFactory.GetReservation({
-			"reservation_id": $scope.reservationID
+			"reservation_id": $scope.resID
 		});
 	//handle promise
+		getReservationResponse.$promise.then(function(data){
+			if(data["result"] == true){
+				$scope.viewPart2 = true;
+				$scope.viewPart1 = false;
+				$scope.currRes = data["data"];
+			}
+			else{
+				//something about how the reservation doesn't exist
+			}
+		});
 	};
 
 
 	$scope.searchAvailability = function(){
-		updateReservationResponse = reservationFactory.UpdateReservationConfirm({
-			"reservation_id": $scope.reservationID,
-			"checkIn": $scope.checkIn,
-			"checkOut": $scope.checkOut
+		updateReservationConfirmResponse = reservationFactory.UpdateReservationConfirm({
+			"reservation_id": $scope.resID,
+			"checkIn": $scope.newCheckinDate,
+			"checkOut": $scope.newCheckoutDate
 		});
 	//handle promise
+		updateReservationConfirmResponse.$promise.then(function(data){
+			if(data["result"]==true){ //rooms are available for booking
+				$scope.viewPart3 = true;
+				$scope.availability["message"] = "Your selected rooms are available for your newly selected dates. Would you like to confirm your updated reservation?"
+				$scope.availability["avail"] = true;
+			}
+			else{
+				$scope.availability["message"] = "Sorry, but your selected rooms are not available for your newly selected dates."
+				$scope.availability["avail"] = false;
+				//handle that there were no available rooms
+			}
+		});
 	};
 
 	$scope.updateReservation = function(){
 		updateReservationResponse = reservationFactory.UpdateReservation({
-			"reservation_id": $scope.reservationID,
-			"checkIn": $scope.checkIn,
-			"checkOut": $scope.checkOut
+			"reservation_id": $scope.resID,
+			"checkIn": $scope.newCheckinDate,
+			"checkOut": $scope.newCheckoutDate
 		});
+		//handle promise
+		updateReservationResponse.$promise.then(function(data){});
 	};
 
 	$scope.cancelReservation = function(){
@@ -199,6 +232,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			"reservaton_id": $scope.reservationID
 		});
 	//handle promise
+		cancelReservationResponse.$promise.then(function(data){});
 	}
 
 })

@@ -57,7 +57,7 @@ class ReservationResource(Resource):
 	def get(self, reservation_id):
 		reservation = db.mysqldb.get_reservation(reservation_id, True)
 		if reservation:
-			return reservation
+			return {"data": reservation, "result": True}
 		else:
 			return {"error": "No reservation found", "result": False}, 404
 
@@ -84,6 +84,7 @@ class UpdateReservationConfirmResource(Resource):
 		super(UpdateReservationConfirmResource, self).__init__()
 
 	def get(self, reservation_id):
+		args  = self.reqparse.parse_args()
 		rooms = db.mysqldb.get_rooms_for_reservation(reservation_id)
 		for room in rooms:
 			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):

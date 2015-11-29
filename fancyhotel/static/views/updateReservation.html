@@ -22,12 +22,20 @@ Haven't reserved a room yet? <a href="#/searchroom">Search for available rooms h
 
 
 --------------------------------------------Clicking will give us the next set of HTML<br /><br /><br />
+<div ng-show="viewPart2">
+
+	Viewing reservation for reservation ID number {{resID}}.<br /><br />
 
 
+<table>
+	<tr ng-repeat="room in currRes">
+		<td>{{room}}</td>
+	</tr>
+</table><br /><br />
 <!--Make this into some table-->
 
-Current checkin date: { {Current Start Date Goes Here} }<br />
-Current checkout date: { {Current End Date Goes Here} }<br />
+Current checkin date: {{currRes.checkin_date}}<br />
+Current checkout date: {{currRes.checkout_date}}<br />
 <form ng-submit="searchAvailability()">
 
 	<label for="newStartDate">New Checkin Date:</label>
@@ -38,13 +46,15 @@ Current checkout date: { {Current End Date Goes Here} }<br />
 	<button type="submit" class="btn btn-default">Search availability</button>
 </form>
 
-
+</div>
 
 --------------------------------------------Clicking will give us the next set of HTML<br /><br /><br />
 
-This is what's available:
+<div ng-show="viewPart3">
+{{availability.message}}
 
-<form ng-submit="updateReservation()">
+
+<form ng-submit="updateReservation()" ng-show="availability.avail">
 [table stuff from the db goes here]<br /><br />
 
 New cost [calculated from db]<br /><br />
@@ -52,7 +62,10 @@ New cost [calculated from db]<br /><br />
 	<button type="submit" class="btn btn-default">Confirm Updated Reservation</button>
 </form>
 
+</div>
+
 </div> 
+
 
 
 
