@@ -47,6 +47,42 @@ class LoginResource(Resource):
 		else:
 			return {"error": "Login information invalid. Check your username or password", "result": False}, 401
 
+class ReservationResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a checkIn date")
+		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a checkOut date")
+		super(ReservationResource, self).__init__()
+
+	def get(self, reservation_id):
+		reservation = db.mysqldb.get_reservation(reservation_id, True)
+		if reservation:
+			return reservation
+		else:
+			return {"error": "No reservation found", "result": False}, 404
+
+	def put(self, reservation_id):
+		args = self.reqparse.parse_args()
+		 
+		rooms = db.mysqldb.get_rooms_for_reservation(reservation_id)
+		for room in rooms:
+			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):
+				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
+
+		message, status = db.mysqldb.update_reservation(reservation_id, args['checkIn'], args['checkOut'])
+		if status:
+			return {"message": message, "result": status}
+		else:
+			return {"message": message, "result": status}, 400
+
+
+class CancelReservationResource(Resource):
+	def get(self, reservation_id):
+		message, status = db.mysqldb.cancel_reservation(reservation_id)
+		if status:
+			return {"message": "Cancelled reservation", "result": True}
+		else:
+			return {"message": message, "result": False}, 400
 
 class SearchRoomsResource(Resource):
 	def __init__(self):
