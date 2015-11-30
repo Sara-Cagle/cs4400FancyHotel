@@ -461,3 +461,12 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
+	def add_review(self):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''INSERT INTO Fancy_Hotel.Review (review_id, location, rating, comment, username) 
+VALUES ('abcdefg', 'atlanta','good', '12345 hello world i hate commenting', 'Clala');
+				''',{}
+				)
+
