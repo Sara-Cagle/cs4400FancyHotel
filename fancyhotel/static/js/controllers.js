@@ -329,6 +329,10 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 .controller('reviewController', function($rootScope, $scope, reviewFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+	$scope.comment = ''; //just in case the user doesn't give one, so in our'd DB, we won't have null, instead we'll have ''
+	$scope.viewPart2= false;
+	$scope.reviews;
+	$scope.emptyTable = '';
 
 	$scope.addReview = function(){
 		addReviewResponse = reviewFactory.AddReview({
@@ -345,7 +349,15 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		getReviewsResponse = reviewFactory.GetReviews({
 			"location": $scope.location
 		});
-		getReviewsResponse.$promise.then(function(data){});
+		getReviewsResponse.$promise.then(function(data){
+			$scope.viewPart2 = true;
+			$scope.reviews = data; //this is an array
+			if(reviews.length==0){
+				$scope.emptyTable="Sorry, there are no reviews for this location!";
+			}
+
+
+		});
 	}
 
 })
