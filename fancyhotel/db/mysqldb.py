@@ -72,7 +72,7 @@ class MysqlManager(object):
 				 	total_cost float NOT NULL DEFAULT 0,
 			 		username char(5) NOT NULL,
 				 	card_number char(16) DEFAULT NULL,
-				 	cancelled_or_not char(1) DEFAULT NULL,
+				 	cancelled_or_not char(1) NOT NULL DEFAULT '0',
 				 	#cancelled_date date DEFAULT NULL,
 				 	PRIMARY KEY (reservation_id),
 				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel.Customer (username),
@@ -209,8 +209,8 @@ class MysqlManager(object):
 					FROM Fancy_Hotel.Room AS r
 					JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
 					ON bed.location = r.location AND bed.room_number = r.room_number AND res.reservation_id = bed.reservation_id
-					WHERE r.location = %(location)s AND res.checkin_date >= %(checkinDate)s AND res.checkout_date <= %(checkoutDate)s AND res.cancelled_or_not = 0
-				)''',
+					WHERE res.checkin_date >= %(checkinDate)s AND res.checkout_date <= %(checkoutDate)s AND res.cancelled_or_not = 0
+				) AND location = %(location)s''',
 				{'location': location, 'checkinDate': checkinDate, 'checkoutDate':checkoutDate}
 			)
 

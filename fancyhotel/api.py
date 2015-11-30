@@ -144,7 +144,7 @@ class SearchRoomsResource(Resource):
 		location = args['location']
 		checkIn = args['checkIn']
 		checkOut = args['checkOut']
-		
+		print location
 		return db.mysqldb.search_rooms(location, checkIn, checkOut)
 		
 class CreditCardResource(Resource):

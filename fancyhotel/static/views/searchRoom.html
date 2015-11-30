@@ -38,7 +38,7 @@
 </div> <!--Toggles the view of the form-->
 
 <div ng-show="hideForm">
-    <h1>Rooms available from {{checkIn}} to {{checkOut}} in {{location}}:</h1>
+    <h1>Rooms available from {{checkIn | date:'yyyy-MM-dd'}} to {{checkOut | date: 'yyyy-MM-dd'}} in {{location}}:</h1>
     Turn these here into a way to select things
 
 <form ng-submit="bookRooms()">
