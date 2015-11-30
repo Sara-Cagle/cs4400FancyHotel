@@ -163,6 +163,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.viewPart2 = false;
 	$scope.viewPart3 = false;
 	$scope.currRes =''; //this is for the update page
+	$scope.newCost = '';
 	
 
 	$scope.availability={ //this is availability of rooms for an update reservation
@@ -228,6 +229,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 				$scope.viewPart3 = true;
 				$scope.availability["message"] = "Your selected rooms are available for your newly selected dates. Would you like to confirm your updated reservation?"
 				$scope.availability["avail"] = true;
+				$scope.calculateNewCost();
 			}
 			else{
 				$scope.availability["message"] = "Sorry, but your selected rooms are not available for your newly selected dates."
@@ -236,6 +238,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			}
 		});
 	};
+
+	$scope.calculateNewCost = function(){
+		//calculate the new cost of the rooms here
+		//for rooms in reservation
+		//(time2-time1)*cost of the room + if extra bed is true, (time2-time1)*cost of extra bed
+		//sum them all up
+	}
 
 	$scope.updateReservation = function(){
 		updateReservationResponse = reservationFactory.UpdateReservation(
