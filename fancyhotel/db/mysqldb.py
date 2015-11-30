@@ -226,8 +226,12 @@ class MysqlManager(object):
 						"extra_bed_price": extra_bed_price
 					}
 				)
-
-			return rooms
+			if(len(rooms)>0):
+				return {"response": rooms, "result": True}
+			else:
+				return {"response": rooms, "result": False}
+			
+			
 
 			#>= DATE('2015-11-24') (the mock checkin date)
 			#DATE('2015-11-29') (the mock checkout date)

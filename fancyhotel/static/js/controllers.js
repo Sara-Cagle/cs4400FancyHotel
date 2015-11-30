@@ -159,14 +159,19 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 .controller('reservationController', function($rootScope, $scope, reservationFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
-	$scope.viewPart1 = true;
+	$scope.viewPart1 = true; //these views are for the update page
 	$scope.viewPart2 = false;
 	$scope.viewPart3 = false;
-	$scope.currRes ='';
-	$scope.availability={
+	$scope.currRes =''; //this is for the update page
+	
+
+	$scope.availability={ //this is availability of rooms for an update reservation
 		"avail": '',
 		"message": ''
 	};
+	$scope.roomsAvailable = []; //this is rooms available for a new search on rooms, not an upate
+	$scope.error = '';
+	$scope.hideForm = false;
 	
 	//api/blah/blah?username=Csara
 	$scope.submit = function(){
@@ -177,7 +182,18 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			"checkOut": $scope.checkOut
 		});
 	//handle promise
-		searchRoomsResponse.$promise.then(function(data){});
+		searchRoomsResponse.$promise.then(function(data){
+			if(data["result"] == true){
+				$scope.roomsAvailable = data["response"];
+				$scope.hideForm = true; //hides the form and replaces it with the available rooms
+
+
+
+			}
+			else{
+				$scope.error="Sorry, there are no available rooms for this period of time.";
+			}
+		});
 	};
 
 	$scope.findReservation = function(){

@@ -7,15 +7,15 @@
 <h1>Hello {{currentUser}} ! </h1><br />
 <div ng-show="{{userType=='customer'}}">
 
-
-
-
+<h1>Search Room</h1>
+<div ng-hide="hideForm">
+<form ng-submit="submit()">
 <div class="container"> 
-        <h1>Search Room</h1>
+
         <div class="form-group">
             <label for="location">Location:</label>
-            <select>
-                <option value="Atlanta">Atlanta</option>
+            <select ng-model="location" required>
+                <option value="Atlanta" selected="selected">Atlanta</option>
                 <option value="Charlotte">Charlotte</option>
                 <option value="Savannah,">Savannah</option>
                 <option value="Orlando">Orlando</option>
@@ -25,14 +25,40 @@
       <!--   http://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_input_date_get -->
         <div class="form-group">
             <label for="startDate">Start Date:</label>
-            <input type="date" id="startDate" value="2015-12-10">
+            <input type="date" id="startDate" placeholder="YYYY-MM-DD" ng-model="checkIn" required><br />
+            Date format must be in YYYY-MM-DD
         </div>
         <div class="form-group">
             <label for="endDate">End Date:</label>
-            <input type="date" id="endDate" value="2016-01-01">
+            <input type="date" id="endDate" placeholder="YYYY-MM-DD"  ng-model="checkOut" required><br />
+            Date format must be in YYYY-MM-DD
         </div>
-        <button type="submit" class="btn btn-default">Search</button>
+        <h2>{{error}}</h2>
+        <button type="submit" class="btn btn-default">Search for Available Rooms</button>
 </div>
+</form>
+</div> <!--Toggles the view of the form-->
 
-</div>
-</div>
+<div ng-show="hideForm">
+    <h1>Rooms available from {{checkIn}} to {{checkOut}} in {{location}}:</h1>
+    Turn these here into a way to select things
+
+<form ng-submit="bookRooms()">
+    <table style="width:100%">
+        <tr>
+            <th>Select</th><th>Capacity </th> <th>Room Type </th> <th>Room Price </th> <th>Extra Bed Price</th>
+        </tr>
+        <tr  ng-repeat="room in roomsAvailable">
+            <td><input name="roomSelection" type="checkbox" ng-value="room" /></td><td>{{room.capacity}} </td> <td>{{room.room_type}} </td> <td>{{room.cost}} </td> <td>{{room.extra_bed_price}}</td>
+        </tr>
+    </table>
+
+    <button type="submit" class="btn btn-default">Book these rooms</button>
+</form>
+
+    <!--{"capacity":2,"cost":100,"extra_bed_price":100,"location":"Atlanta","room_number":1,"room_type":"Suite"}-->
+</div><!--Toggles showing the resulting available rooms-->
+
+
+</div><!--Toggles the view based on if you're a customer-->
+</div><!--Toggles the view based on if you're logged in-->
