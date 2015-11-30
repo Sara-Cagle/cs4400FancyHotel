@@ -52,10 +52,16 @@ class ReservationResource(Resource):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a check-in date")
 		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a check-out date")
+		self.reqparse.add_argument('username', type=str, required=True, help="Please provide a user name")
+
+		self.getreqparse = reqparse.RequestParser()
+		self.getreqparse.add_argument('username', type=str, required=True, help="Please provide a user name")
+
 		super(ReservationResource, self).__init__()
 
 	def get(self, reservation_id):
-		reservation = db.mysqldb.get_reservation(reservation_id, True)
+		args = self.getreqparse.parse_args()
+		reservation = db.mysqldb.get_reservation(args['username'], reservation_id, True)
 		if reservation:
 			return {"data": reservation, "result": True}
 		else:
@@ -64,7 +70,7 @@ class ReservationResource(Resource):
 	def put(self, reservation_id): #update the reservation
 		args = self.reqparse.parse_args()
 		 
-		rooms = db.mysqldb.get_rooms_for_reservation(reservation_id)
+		rooms = db.mysqldb.get_rooms_for_reservation(args['username'], reservation_id)
 		for room in rooms:
 			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):
 				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
@@ -81,11 +87,12 @@ class UpdateReservationConfirmResource(Resource):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a check-in date")
 		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a check-out date")
+		self.reqparse.add_argument('username', type=str, required=True, help="Please provide a user name")
 		super(UpdateReservationConfirmResource, self).__init__()
 
 	def get(self, reservation_id):
 		args  = self.reqparse.parse_args()
-		rooms = db.mysqldb.get_rooms_for_reservation(reservation_id)
+		rooms = db.mysqldb.get_rooms_for_reservation(args['username'], reservation_id)
 		for room in rooms:
 			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):
 				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
@@ -94,8 +101,14 @@ class UpdateReservationConfirmResource(Resource):
 
 
 class CancelReservationResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument('username', type=str, required=True, help="Please provide a user name")
+		super(CancelReservationResource, self).__init__()
+
 	def get(self, reservation_id):
-		message, status = db.mysqldb.cancel_reservation(reservation_id)
+		args = self.reqparse.parse_args()
+		message, status = db.mysqldb.cancel_reservation(args['username'], reservation_id)
 		if status:
 			return {"message": "Cancelled reservation", "result": True}
 		else:

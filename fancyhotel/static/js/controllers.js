@@ -168,8 +168,10 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		"message": ''
 	};
 	
+	//api/blah/blah?username=Csara
 	$scope.submit = function(){
-		searchRoomsResponse = reservationFactory.SearchRooms({
+		searchRoomsResponse = reservationFactory.SearchRooms(
+		{
 			"location": $scope.location,
 			"checkIn": $scope.checkIn,
 			"checkOut": $scope.checkOut
@@ -180,7 +182,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 	$scope.findReservation = function(){
 		getReservationResponse = reservationFactory.GetReservation({
-			"reservation_id": $scope.resID
+			"reservation_id": $scope.resID,
+			"username": $rootScope.currentUser
 		});
 	//handle promise
 		getReservationResponse.$promise.then(function(data){
@@ -200,7 +203,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		updateReservationConfirmResponse = reservationFactory.UpdateReservationConfirm({
 			"reservation_id": $scope.resID,
 			"checkIn": $scope.newCheckinDate,
-			"checkOut": $scope.newCheckoutDate
+			"checkOut": $scope.newCheckoutDate,
+			"username":$rootScope.currentUser
 		});
 	//handle promise
 		updateReservationConfirmResponse.$promise.then(function(data){
@@ -218,7 +222,11 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	};
 
 	$scope.updateReservation = function(){
-		updateReservationResponse = reservationFactory.UpdateReservation({
+		updateReservationResponse = reservationFactory.UpdateReservation(
+		{
+			"username":$rootScope.currentUser
+		},
+		{
 			"reservation_id": $scope.resID,
 			"checkIn": $scope.newCheckinDate,
 			"checkOut": $scope.newCheckoutDate
@@ -229,7 +237,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 	$scope.cancelReservation = function(){
 		cancelReservationResponse = reservationFactory.CancelReservation({
-			"reservaton_id": $scope.reservationID
+			"reservaton_id": $scope.reservationID,
+			"username":$rootScope.currentUser
 		});
 	//handle promise
 		cancelReservationResponse.$promise.then(function(data){});
@@ -239,29 +248,34 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 
 .controller('reportController', function($rootScope, $scope, reportFactory){
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	//$rootScope.currentUser;
 
-	$scope.data = {};
+	$scope.resReport = {};
+	$scope.popCatReport = {};
+	$scope.revenueReport = {};
 	$scope.emptyTable = "";
 
-	response = reportFactory.ResReport(); 
-	response.$promise.then(function(data){
-		$scope.data=data;
-	})
 
-	if(Object.keys($scope.data).length==0){
+	reservationReportResponse = reportFactory.ResReport(); 
+	reservationReportResponse.$promise.then(function(data){
+		$scope.resReport=data;
+	});
+
+	popCatReportResponse = reportFactory.PopularRoomCatReport(); 
+	reservationReportResponse.$promise.then(function(data){
+		$scope.popCatReport=data;
+	});
+
+	revenueReportResponse = reportFactory.RevenueReport(); 
+	reservationReportResponse.$promise.then(function(data){
+		$scope.revenueReport=data;
+	});
+
+	/*if(Object.keys($scope.data).length==0){
 		$scope.emptyTable="Sorry, no results were found!";
-	}
+	}*/
 
-	$scope.getPopularRoomCatReport = function(){
-
-		$scope.popularRooms = {};
-	};
-	//onclick of this from the portal, run this function
-	$scope.getRevenueReport = function(){
-
-		$scope.revenue= {};
-	};
 
 })
 
@@ -320,7 +334,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		controller: 'reportController'
 	})
 	.when('/revenueReport', {
-		templateUrl: 'static/views/revenueReport.html'
+		templateUrl: 'static/views/revenueReport.html',
+		controller: 'reportController'
 	})
 	.when('/provideFeedback', {
 		templateUrl: 'static/views/provideFeedback.html'

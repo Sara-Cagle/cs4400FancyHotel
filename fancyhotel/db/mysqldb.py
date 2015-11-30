@@ -73,7 +73,7 @@ class MysqlManager(object):
 			 		username char(5) NOT NULL,
 				 	card_number char(16) DEFAULT NULL,
 				 	cancelled_or_not char(1) DEFAULT NULL,
-				 	cancelled_date date DEFAULT NULL,
+				 	#cancelled_date date DEFAULT NULL,
 				 	PRIMARY KEY (reservation_id),
 				 	FOREIGN KEY (username) REFERENCES Fancy_Hotel.Customer (username),
 				 	FOREIGN KEY (card_number) REFERENCES Fancy_Hotel.Credit_Card (card_number) ON DELETE SET NULL
@@ -234,16 +234,16 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def get_rooms_for_reservation(self, reservation_id):
+	def get_rooms_for_reservation(self, username, reservation_id):
 		cursor = self.connection.cursor()
 		try:
 			cursor.execute(
 				'''SELECT room.location, room.room_number, room.type, room.room_cost, room.capacity, room.extra_bed_price, bed.extra_bed_or_not FROM Fancy_Hotel.Room as room
 				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed, Fancy_Hotel.Reservation AS res)
 				ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
-				WHERE res.reservation_id = %(reservation_id)s
+				WHERE res.reservation_id = %(reservation_id)s AND res.username = %(username)s
 				''',
-				{'reservation_id': reservation_id}
+				{'reservation_id': reservation_id, 'username': username}
 			)
 			rows = cursor.fetchall()
 			rooms = []
@@ -261,30 +261,30 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def get_reservation(self, reservation_id, include_cancelled):
+	def get_reservation(self, username, reservation_id, include_cancelled):
 		cursor = self.connection.cursor()
 		try:
 			if include_cancelled:
 				cursor.execute(
 					'''SELECT *
 					FROM Fancy_Hotel.Reservation
-					WHERE reservation_id = %(reservation_id)s
+					WHERE reservation_id = %(reservation_id)s AND username = %(username)s
 					''',
-					{'reservation_id': reservation_id}
+					{'reservation_id': reservation_id, "username": username}
 				)
 			else:
 				cursor.execute(
 					'''SELECT *
 					FROM Fancy_Hotel.Reservation
-					WHERE reservation_id = %(reservation_id)s AND cancelled_or_not = 0
+					WHERE reservation_id = %(reservation_id)s AND username = %(username)s AND cancelled_or_not = 0
 					''',
-					{'reservation_id': reservation_id}
+					{'reservation_id': reservation_id, "username": username}
 				)
 
 			rows = cursor.fetchall()
 			if len(rows) > 0:
-				id, checkin_date, checkout_date, total_cost, username, card_number, cancelled_or_not, cancelled_date = rows[0]
-				rooms = self.get_rooms_for_reservation(id)
+				id, checkin_date, checkout_date, total_cost, username, card_number, cancelled_or_not= rows[0] #,cancelled_date
+				rooms = self.get_rooms_for_reservation(username, id)
 				return {
 					"reservation_id": id,
 					"checkin_date": str(checkin_date),
@@ -293,7 +293,7 @@ class MysqlManager(object):
 					"username": username,
 					"card_number": card_number,
 					"cancelled_or_not": cancelled_or_not,
-					"cancelled_date": str(cancelled_date),
+					#"cancelled_date": str(cancelled_date),
 					"rooms": rooms
 				}
 			else:
@@ -301,7 +301,7 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def update_reservation(self, reservation_id, checkin_date, checkout_date):
+	def update_reservation(self, username, reservation_id, checkin_date, checkout_date):
 		cursor = self.connection.cursor()
 		try:
 			reservation = self.get_reservation(reservation_id, False)
@@ -309,9 +309,9 @@ class MysqlManager(object):
 				cursor.execute(
 					'''UPDATE Fancy_Hotel.Reservation
 					SET checkin_date = %(checkin_date)s, checkout_date = %(checkout_date)s
-					WHERE reservation_id = %(reservation_id)s
+					WHERE reservation_id = %(reservation_id)s AND username = %(username)s
 					''',
-					{"reservation_id": reservation_id, "checkin_date":checkin_date, "checkout_date": checkout_date}
+					{"reservation_id": reservation_id, "checkin_date":checkin_date, "checkout_date": checkout_date, "username": username}
 				)
 				self.connection.commit()
 				return "Reservation updated", True
@@ -320,18 +320,18 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def cancel_reservation(self, reservation_id):
+	def cancel_reservation(self, username, reservation_id):
 		cursor = self.connection.cursor()
 		try:
 			reservation = self.get_reservation(reservation_id)
 			if reservation:
 				cursor.execute(
 					'''UPDATE Fancy_Hotel.Reservation
-					SET cancelled_or_not = 1, cancelled_date = CURDATE()
-					WHERE reservation_id = %(reservation_id)s 
+					SET cancelled_or_not = 1#, cancelled_date = CURDATE()
+					WHERE reservation_id = %(reservation_id)s AND username = %(username)s
 						AND cancelled_or_not = 0
 					''',
-					{'reservation_id': reservation_id}
+					{'reservation_id': reservation_id, "username": username}
 				)
 				self.connection.commit()
 
@@ -376,6 +376,7 @@ class MysqlManager(object):
 				FROM Fancy_Hotel.Reservation AS res
 				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed)
 				ON res.reservation_id = bed.reservation_id
+				WHERE Month(res.checkin_date) = 9 or Month(res.checkin_date) = 10
 				GROUP BY MONTH(checkin_date), bed.location
 				'''
 			)
@@ -400,6 +401,7 @@ class MysqlManager(object):
 					FROM Fancy_Hotel.Room as room
 					JOIN (Fancy_Hotel.Reserves_Extra_Bed as bed, Fancy_Hotel.Reservation as res)
 					ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
+					WHERE Month(res.checkin_date) = 9 or Month(res.checkin_date) = 10
 					GROUP BY Month(res.checkin_date), room.location, room.type);
 				'''
 			)
@@ -436,14 +438,11 @@ class MysqlManager(object):
 			cursor.execute(
 				'''SELECT Month(res.checkin_date) as month, 
 				room.location as location, 
-				(SUM(room.room_cost) + SUM(CASE 
-					WHEN bed.extra_bed_or_not = 1 
-						THEN room.extra_bed_price 
-					ELSE 0 
-					END)) as cost
+				SUM(res.total_cost)
 				FROM Fancy_Hotel.Room as room
 				JOIN (Fancy_Hotel.Reserves_Extra_Bed as bed, Fancy_Hotel.Reservation as res)
 				ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
+				WHERE Month(res.checkin_date) = 9 or Month(res.checkin_date) = 10
 				GROUP BY Month(res.checkin_date), room.location;
 				'''
 			)

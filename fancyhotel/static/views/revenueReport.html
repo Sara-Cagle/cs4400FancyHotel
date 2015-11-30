@@ -1,10 +1,11 @@
 <h1>Revenue Report</h1>
 
 <div ng-hide="{{loggedInBool}}" important>
-	<h1>You aren't logged in yet! Please login to view this page.</h1>
+	<h1>You aren't logged in yet! Please <a href="#/login">login</a> to view this page.</h1>
 </div>
 
-<h1>Hello {{currentUser}}! </h1><br />
+<div ng-show="{{loggedInBool}}" important>
+<h1>Hello {{currentUser}} ! </h1><br />
 
 <div ng-show="{{userType=='customer'}}">
   Only managers can vew reports. Please login to a manager account to view this page.
@@ -12,7 +13,35 @@
 
 <div ng-show="{{userType=='manager'}}">
 
-put content here.
+put content here.<br /><br />
 
 
+
+<table>
+	<tr>
+		<th>Month</th><th>Location</th><th>Revenue</th>
+	</tr>
+	<tr ng-repeat="(month, locgroup) in revenueReport">
+		<td>{{month}}</td>
+		<td>
+			<div ng-repeat="(location, revenue) in locgroup">
+				<span>{{locgroup}}</span>
+				<br/>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<!-- resReport = {};
+	$scope.popCatReport = {};
+	$scope.revenueReport = {};
+ -->
+
+
+
+
+
+
+
+</div>
 </div>
