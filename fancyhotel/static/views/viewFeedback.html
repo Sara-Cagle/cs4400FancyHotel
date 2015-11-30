@@ -1,1 +1,48 @@
-<p>view feedback</p>
+<div ng-hide="{{loggedInBool}}" important>
+	<h1>You aren't logged in yet! Please <a href="#/login">login</a> to view this page.</h1>
+</div>
+
+<h2>View Review</h2>
+<div class="container"> 
+    <div class="form-group">
+        <label for="location">Hotel Location</label>
+            <select ng-model="location" required>
+                <option value="Atlanta" selected="selected">Atlanta</option>
+                <option value="Charlotte">Charlotte</option>
+                <option value="Savannah">Savannah</option>
+                <option value="Orlando">Orlando</option>
+                <option value="Miami">Miami</option>
+            </select>
+    </div>
+    <button type="submit" class="btn btn-default">Check Reviews</button>
+</div>
+
+<div class="container" ng-show="{{locationsubmitted}}" important> 
+    <div class="form-group">
+        <head>
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+</style>
+</head>
+<body>
+<table style="width:100%">
+  <tr>
+    <th>Rating</th>
+    <th>Comment</th>		
+  </tr>
+  <tr ng-repeat="rating in ratings">
+    <td>{{rating}}</td>
+  </tr>
+  <tr ng-repeat="comment in comments">
+    <td>{{comment}}</td>
+  </tr>
+</table>
+</body>
+    </div>  
+</div>

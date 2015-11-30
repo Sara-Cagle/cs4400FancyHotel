@@ -30,7 +30,49 @@ Haven't reserved a room yet? <a href="#/searchroom">Search for available rooms h
 Checkin date: { {Current Start Date Goes Here} }<br />
 Checkout date: { {Current End Date Goes Here} }<br /><br />
 
-[The table of this reservation is here, from the db]<br /><br />
+<div class="form-group">
+<head>
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+</style>
+</head>
+<body>
+<table style="width:100%">
+  <tr>
+    <th>Room number</th>
+    <th>Room Category</th>  
+    <th>Number persons allowed</th>
+    <th>Cost per day</th> 
+    <th>cost of extra bed per day</th>
+    <th>select extra bed</th>
+  </tr>
+  <tr ng-repeat="roomnum in roomnums">
+    <td>{{roomnum}}</td>
+  </tr>
+  <tr ng-repeat="category in categories">
+    <td>{{category}}</td>
+  </tr>
+  <tr ng-repeat="personnum in personnums">
+    <td>{{personnum}}</td>
+  </tr>
+  <tr ng-repeat="cost in costs">
+    <td>{{cost}}</td>
+  </tr>
+  <tr ng-repeat="costextrabed in costsextrabeds">
+    <td>{{costextrabed}}</td>
+  </tr>
+  <tr ng-repeat="selectextrabed in selectsextrabeds">
+    <td><input type="checkbox" name="selectextrabed" value="selectextrabed"></td>
+  </tr>
+</table>
+</body>
+</div> 
 
 <form ng-submit="cancelReservation()">
 	Total cost of reservation : { {Cost of the reservation} } (all of these need ng-model)<br />
