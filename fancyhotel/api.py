@@ -152,6 +152,10 @@ class CreditCardResource(Resource):
 		self.reqparse = reqparse.RequestParser()
 		self.reqparse.add_argument("username", type=str, required=True, help="Please provide a username")
 		
+		self.delete_reqparse = reqparse.RequestParser()
+		self.delete_reqparse.add_argument("username", type=str, required=True, help="Please provide a username")
+		self.delete_reqparse.add_argument("card_number", type=str, required=True, help="Please provide a card number")
+		
 		self.create_reqparse = reqparse.RequestParser()
 		self.create_reqparse.add_argument("username", type=str, required=True, location='json', help="Please provide a username")
 		self.create_reqparse.add_argument("card_number", type=str, required=True, location='json', help="Please provide a card_number")
@@ -168,6 +172,13 @@ class CreditCardResource(Resource):
 	def post(self):
 		args = self.create_reqparse.parse_args()
 		message, status = db.mysqldb.add_credit_card(args['username'], args['card_number'], args['cvv'], args['expiration_date'], args['name'])
+		if status:
+			return {'message': message, 'result': status}
+		return {'message': message, 'result': status}, 400
+		
+	def delete(self):
+		args = self.delete_reqparse.parse_args()
+		message, status = db.mysqldb.delete_credit_card(args['username'], args['card_number'])
 		if status:
 			return {'message': message, 'result': status}
 		return {'message': message, 'result': status}, 400

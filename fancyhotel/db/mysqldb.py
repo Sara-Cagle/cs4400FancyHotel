@@ -453,6 +453,23 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 	
+	def delete_credit_card(self, username, card_number):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''
+				DELETE FROM Fancy_Hotel.Credit_Card
+				WHERE card_number = %(card_number)s AND username = %(username)s  
+				''',
+				{"card_number": card_number, "username": username}
+			)
+			if cursor.rowcount == 0:
+				return "This credit card was not found", False
+			self.connection.commit()
+			return "Credit card deleted", True
+		finally:
+			cursor.close()
+	
 	def add_review(self, username, location, comment, rating):
 		cursor = self.connection.cursor()
 		try:
