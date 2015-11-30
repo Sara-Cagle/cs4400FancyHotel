@@ -66,10 +66,10 @@ class MysqlManager(object):
 
 			cursor.execute(
 				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Reservation (
-				 	reservation_id varchar(20) NOT NULL,
+				 	reservation_id INT NOT NULL AUTO_INCREMENT,
 				 	checkin_date date NOT NULL,
 				 	checkout_date date NOT NULL,
-				 	total_cost float NOT NULL,
+				 	total_cost float NOT NULL DEFAULT 0,
 			 		username char(5) NOT NULL,
 				 	card_number char(16) DEFAULT NULL,
 				 	cancelled_or_not char(1) DEFAULT NULL,
@@ -79,6 +79,7 @@ class MysqlManager(object):
 				 	FOREIGN KEY (card_number) REFERENCES Fancy_Hotel.Credit_Card (card_number) ON DELETE SET NULL
 				);'''
 			)
+			
 
 			cursor.execute(
 				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Room (
@@ -97,7 +98,7 @@ class MysqlManager(object):
 				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Reserves_Extra_Bed (
 					location varchar(9) NOT NULL,
 					room_number int(11) NOT NULL,
-					reservation_id varchar(20) NOT NULL,
+					reservation_id INT NOT NULL,
 					extra_bed_or_not char(1) DEFAULT NULL,
 					PRIMARY KEY (location, room_number, reservation_id),
 					FOREIGN KEY (location, room_number) REFERENCES Fancy_Hotel.Room (location, room_number),
@@ -304,6 +305,37 @@ class MysqlManager(object):
 				return {}
 		finally:
 			cursor.close()
+	
+	def insert_reservation(self, username, checkin_date, checkout_date, card_number, rooms):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''
+				INSERT INTO Fancy_Hotel.Reservation 
+				(username, checkin_date, checkout_date, card_number)
+				VALUES(%(username)s, %(checkin_date)s, %(checkout_date)s, %(card_number)s)
+				''',
+				{"username": username, "checkin_date": checkin_date, "checkout_date": checkout_date, "card_number": card_number}
+			)
+			
+			reservation_id = cursor.lastrowid
+			
+			for room in rooms:
+				cursor.execute(
+					'''
+					INSERT INTO Fancy_Hotel.Reserves_Extra_Bed
+					(location, room_number, reservation_id, extra_bed_or_not)
+					VALUES(%(location)s, %(room_number)s, %(reservation_id)s, %(extra_bed_or_not)s)
+					''',
+					{"location": room['location'], "room_number": room['room_number'], "reservation_id": reservation_id, "extra_bed_or_not": room['extra_bed_or_not']}
+				)
+				if cursor.rowcount == 0:
+					pass #error
+				
+			self.connection.commit()
+			return reservation_id
+		finally:
+			cursor.close()
 
 	def update_reservation(self, username, reservation_id, checkin_date, checkout_date):
 		cursor = self.connection.cursor()
@@ -369,6 +401,55 @@ class MysqlManager(object):
 			)
 			rows = cursor.fetchall()
 			return len(rows) == 0 #if the room does not occur in our query, then there will be returned an empty table, true
+		finally:
+			cursor.close()
+	
+	def add_credit_card(self, username, card_number, ccv, expiration_date, card_name):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''
+				INSERT INTO Fancy_Hotel.Credit_Card
+				(card_number, name, ccv, expiration_date, username)
+				VALUES (%(card_number)s, %(name)s, %(ccv)s, %(expiration_date)s, %(username)s)  
+				''',
+				{"card_number": card_number, "name": card_name, "ccv": ccv, "expiration_date": expiration_date, "username": username}
+			)
+			
+			
+			if cursor.rowcount == 0:
+				return "Credit card creation failed", False
+			
+			self.connection.commit()	
+			return "Credit card successfully created", True
+			
+		finally:
+			cursor.close()
+			
+	def get_credit_cards(self, username):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''
+				SELECT * From Fancy_Hotel.Credit_Card
+				WHERE username = %(username)s
+				''',
+				{'username': username}
+			)
+			rows = cursor.fetchall()
+			cards = []
+			for card_number, name, ccv, expiration_date, username in rows:
+				cards.append(
+					{
+						"card_number": card_number,
+						"name": name,
+						"ccv": ccv, 
+						"expiration_date": str(expiration_date),
+						"username": username
+					}
+				)
+			
+			return cards
 		finally:
 			cursor.close()
 
@@ -461,12 +542,12 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def add_review(self):
-		cursor = self.connection.cursor()
-		try:
-			cursor.execute(
-				'''INSERT INTO Fancy_Hotel.Review (review_id, location, rating, comment, username) 
-VALUES ('abcdefg', 'atlanta','good', '12345 hello world i hate commenting', 'Clala');
-				''',{}
-				)
+# 	def add_review(self):
+# 		cursor = self.connection.cursor()
+# 		try:
+# 			cursor.execute(
+# 				'''INSERT INTO Fancy_Hotel.Review (review_id, location, rating, comment, username) 
+# VALUES ('abcdefg', 'atlanta','good', '12345 hello world i hate commenting', 'Clala');
+# 				''',{}
+# 				)
 

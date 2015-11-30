@@ -240,9 +240,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.updateReservation = function(){
 		updateReservationResponse = reservationFactory.UpdateReservation(
 		{
-			"username":$rootScope.currentUser
-		},
-		{
+			"username":$rootScope.currentUser,
 			"reservation_id": $scope.resID,
 			"checkIn": $scope.newCheckinDate,
 			"checkOut": $scope.newCheckoutDate

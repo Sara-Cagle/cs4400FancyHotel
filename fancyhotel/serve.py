@@ -16,8 +16,10 @@ def index():
 api.add_resource(restapi.LoginResource, '/api/login')
 api.add_resource(restapi.NewUserRegistrationResource, '/api/register')
 api.add_resource(restapi.SearchRoomsResource, '/api/searchRoom')
+api.add_resource(restapi.CreateReservationResource, '/api/reservation/create')
 api.add_resource(restapi.ReservationResource, '/api/reservation/<string:reservation_id>') #includes update_reservation
 api.add_resource(restapi.UpdateReservationConfirmResource, '/api/reservation/<string:reservation_id>/availability')
+api.add_resource(restapi.CreditCardResource, '/api/payment')
 #api.add_resource(restapi.PaymentInfoResource, '#')
 #api.add_resource(restapi.ConfirmationScreenResource, '#')
 api.add_resource(restapi.CancelReservationResource, '/api/reservation/<string:reservation_id>/cancel')

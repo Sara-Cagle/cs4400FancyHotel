@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, reqparse, abort, request
 import db #instantiates the database so we don't have to do that in here
 
 
@@ -46,6 +46,23 @@ class LoginResource(Resource):
 			return {"message": "You logged in!", "result": True}
 		else:
 			return {"error": "Login information invalid. Check your username or password", "result": False}, 401
+
+class CreateReservationResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument('username', type=str, required=True, help="Please provide a username")
+		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a checkIn")
+		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a checkOut")
+		self.reqparse.add_argument('card_number', type=str, required=True, help="Please provide a card_number")
+		self.reqparse.add_argument('rooms', type=list, required=True, help="Please provide a list of rooms")
+		super(CreateReservationResource, self).__init__()
+		
+	def post(self):
+		args = self.reqparse.parse_args()
+		json_body = request.json
+		print json_body['rooms']
+		return db.mysqldb.insert_reservation(args['username'], args['checkIn'], args['checkOut'], args['card_number'], json_body['rooms'])
+		
 
 class ReservationResource(Resource):
 	def __init__(self):
@@ -129,7 +146,32 @@ class SearchRoomsResource(Resource):
 		checkOut = args['checkOut']
 		
 		return db.mysqldb.search_rooms(location, checkIn, checkOut)
-
+		
+class CreditCardResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument("username", type=str, required=True, help="Please provide a username")
+		
+		self.create_reqparse = reqparse.RequestParser()
+		self.create_reqparse.add_argument("username", type=str, required=True, location='json', help="Please provide a username")
+		self.create_reqparse.add_argument("card_number", type=str, required=True, location='json', help="Please provide a card_number")
+		self.create_reqparse.add_argument("name", type=str, required=True, location='json', help="Please provide a name")
+		self.create_reqparse.add_argument("ccv", type=str, required=True, location='json', help="Please provide a ccv")
+		self.create_reqparse.add_argument("expiration_date", type=str, required=True, location='json', help="Please provide a expiration_date")
+		
+		super(CreditCardResource, self).__init__()
+		
+	def get(self):
+		args = self.reqparse.parse_args()
+		return db.mysqldb.get_credit_cards(args['username'])
+		
+	def post(self):
+		args = self.create_reqparse.parse_args()
+		message, status = db.mysqldb.add_credit_card(args['username'], args['card_number'], args['ccv'], args['expiration_date'], args['name'])
+		if status:
+			return {'message': message, 'result': status}
+		return {'message': message, 'result': status}, 400
+		
 class ReservationReportResource(Resource):
 	def get(self):
 		return db.mysqldb.reservation_report()
