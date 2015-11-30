@@ -53,7 +53,7 @@ class MysqlManager(object):
 
 			cursor.execute(
 				'''CREATE TABLE IF NOT EXISTS Fancy_Hotel.Review (
-				 	review_id varchar(20) NOT NULL,
+				 	review_id INT NOT NULL AUTO_INCREMENT,
 				 	location varchar(9) NOT NULL,
 				 	comment varchar(1000) DEFAULT NULL,
 				 	rating varchar(10) NOT NULL,
@@ -404,16 +404,16 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 	
-	def add_credit_card(self, username, card_number, ccv, expiration_date, card_name):
+	def add_credit_card(self, username, card_number, cvv, expiration_date, card_name):
 		cursor = self.connection.cursor()
 		try:
 			cursor.execute(
 				'''
 				INSERT INTO Fancy_Hotel.Credit_Card
-				(card_number, name, ccv, expiration_date, username)
-				VALUES (%(card_number)s, %(name)s, %(ccv)s, %(expiration_date)s, %(username)s)  
+				(card_number, name, cvv, expiration_date, username)
+				VALUES (%(card_number)s, %(name)s, %(cvv)s, %(expiration_date)s, %(username)s)  
 				''',
-				{"card_number": card_number, "name": card_name, "ccv": ccv, "expiration_date": expiration_date, "username": username}
+				{"card_number": card_number, "name": card_name, "cvv": cvv, "expiration_date": expiration_date, "username": username}
 			)
 			
 			
@@ -438,18 +438,63 @@ class MysqlManager(object):
 			)
 			rows = cursor.fetchall()
 			cards = []
-			for card_number, name, ccv, expiration_date, username in rows:
+			for card_number, name, cvv, expiration_date, username in rows:
 				cards.append(
 					{
 						"card_number": card_number,
 						"name": name,
-						"ccv": ccv, 
+						"cvv": cvv, 
 						"expiration_date": str(expiration_date),
 						"username": username
 					}
 				)
 			
 			return cards
+		finally:
+			cursor.close()
+	
+	def add_review(self, username, location, comment, rating):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''
+				INSERT INTO Fancy_Hotel.Review
+				(location, comment, rating, username)
+				VALUES (%(location)s, %(comment)s, %(rating)s, %(username)s)  
+				''',
+				{"location": location, "comment": comment, "rating": rating, "username": username}
+			)
+			if cursor.rowcount == 0:
+				return "Could not create review", False
+			self.connection.commit()
+			return "Review created", True
+		finally:
+			cursor.close()
+			
+	def get_reviews(self, location):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute(
+				'''
+				SELECT * From Fancy_Hotel.Review
+				WHERE location = %(location)s
+				''',
+				{'location': location}
+			)
+			rows = cursor.fetchall()
+			reviews = []
+			for id, location, comment, rating, username in rows:
+				reviews.append(
+					{
+						"review_id": id, 
+						"location": location, 
+						"comment": comment, 
+						"rating": rating,
+						"username": username
+					}
+				)
+				
+			return reviews
 		finally:
 			cursor.close()
 
