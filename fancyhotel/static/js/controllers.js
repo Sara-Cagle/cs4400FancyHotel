@@ -56,6 +56,19 @@ resourceModule.factory('reservationFactory', function($resource){
 	})
 })
 
+resourceModule.factory('reviewFactory', function($resource){
+	return $resource('/api', {}, {
+		AddReview:{
+			method: 'PUT',
+			url: '/api/review'
+		},
+		GetReviews:{
+			method: 'GET',
+			url: '/api/review'
+		}
+	})
+})
+
 
 
 
@@ -163,7 +176,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.viewPart2 = false;
 	$scope.viewPart3 = false;
 	$scope.currRes =''; //this is for the update page
-	$scope.newCost = '';
+	$scope.newCost = 0;
 	
 
 	$scope.availability={ //this is availability of rooms for an update reservation
@@ -240,6 +253,18 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	};
 
 	$scope.calculateNewCost = function(){
+		var numOfDays = $scope.newCheckoutDate - $scope.newCheckinDate; //gives us difference in miliseconds
+		numOfDays = numOfDays%86400000; //turn it into days
+		var cost = 0;
+		for(i=0; i<$scope.currRes.rooms.length; i++ ){
+			cost += $scope.currRes.rooms[i].cost*numOfDays;
+			if($scope.currRes.rooms[i].extra_bed_or_not==1){
+				cost += $scope.currRes.rooms[i].extra_bed_price*numOfDays;
+			}
+		}
+
+		$scope.newCost = cost;
+		//return cost;
 		//calculate the new cost of the rooms here
 		//for rooms in reservation
 		//(time2-time1)*cost of the room + if extra bed is true, (time2-time1)*cost of extra bed
@@ -302,6 +327,29 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 })
 
+.controller('reviewController', function($rootScope, $scope, reviewFactory){
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+
+	$scope.addReview = function(){
+		addReviewResponse = reviewFactory.AddReview({
+			"location": $scope.location, 
+			"comment": $scope.comment,
+			"rating": $scope.rating, 
+			"username": $rootScope.currentUser
+		});
+	//handle promise
+		addReviewResponse.$promise.then(function(data){});
+	}
+
+	$scope.getReviews = function(){
+		getReviewsResponse = reviewFactory.GetReviews({
+			"location": $scope.location
+		});
+		getReviewsResponse.$promise.then(function(data){});
+	}
+
+})
+
 
 .config(function($routeProvider) { //routing needs to be on a server in order to run
 	$routeProvider
@@ -344,10 +392,6 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		templateUrl: 'static/views/reservationConfirmation.html'//,
 		/*controller: 'contentController'*/
 	})
-	.when('/projects', {
-		templateUrl: 'static/views/project.html'//,
-		/*controller: 'contentController'*/
-	})
 	.when('/resReport', {
 		templateUrl: 'static/views/reservationReport.html',
 		controller: 'reportController'
@@ -361,10 +405,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		controller: 'reportController'
 	})
 	.when('/provideFeedback', {
-		templateUrl: 'static/views/provideFeedback.html'
+		templateUrl: 'static/views/writeReview.html',
+		controller: 'reviewController'
 	})
 	.when('/viewFeedback', {
-		templateUrl: 'static/views/viewFeedback.html'
+		templateUrl: 'static/views/viewFeedback.html',
+		controller: 'reviewController'
 	});
 })
 
