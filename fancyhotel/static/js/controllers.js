@@ -133,6 +133,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 
 	$scope.myRegex = /C[a-zA-Z0-9]{4}/;
+	$scope.length = 5; 
+	$scope.password = $scope.confirmpassword;
 
 	$scope.submit = function() {
 		response = authFactory.Register({
@@ -140,7 +142,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			"email": $scope.email,
 			"password": $scope.password,
 			"firstName": $scope.firstName,
-			"lastName": $scope.lastName
+			"lastName": $scope.lastName,
+			"confirmpassword": $scope.confirmpassword
 		});
 
 		response.$promise.then(function(data)
