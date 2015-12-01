@@ -20,7 +20,12 @@
         </div>
         <div class="form-group">
             <label for="expiredate">Expiration Date</label>
-            <input type="expiredate" class="form-control" placeholder="MM/YYYY" ng-model="expirationDate" required>
+            <div class='input-group date' id='expirationDatePicker'>
+                <input type="text" class="form-control" placeholder="Expiration Date" required>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
         </div>
         <div class="form-group">
             <label for="cvv">CVV</label>
@@ -28,6 +33,8 @@
         </div>
         <button type="submit" class="btn btn-default">Add Card</button>
     </form>
+<br /><br />
+    <a href="#/searchroom">Back to Reservation Page</a>
 </div>
 
 
@@ -39,7 +46,7 @@
         <div class="form-group">
         	<label for="4cardnum">Card number</label>
             <select>
-                <option ng-repeat="" value="">Card Numbers Go Here</option>
+                <option  ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}">{{creditCards[$index].card_number}}</option> 
             </select>
         </div>
         <button type="submit" class="btn btn-default">Delete Card</button>

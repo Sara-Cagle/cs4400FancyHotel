@@ -63,12 +63,13 @@ resourceModule.factory('reservationFactory', function($resource){
 resourceModule.factory('reviewFactory', function($resource){
 	return $resource('/api', {}, {
 		AddReview:{
-			method: 'PUT',
+			method: 'POST',
 			url: '/api/review'
 		},
 		GetReviews:{
 			method: 'GET',
-			url: '/api/review'
+			url: '/api/review',
+			isArray: true
 		}
 	})
 })
@@ -77,10 +78,11 @@ resourceModule.factory('paymentFactory', function($resource){
 	return $resource('/api', {}, {
 		GetCreditCards:{
 			method: 'GET',
-			url: '/api/payment'
+			url: '/api/payment',
+			isArray: true
 		},
 		AddCreditCard:{
-			method: 'PUT',
+			method: 'POST',
 			url: '/api/payment'
 		},
 		DeleteCreditCard:{
@@ -196,7 +198,14 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 })
 .controller('reservationController', function($rootScope, $scope, reservationFactory, paymentFactory){
+	$scope.creditCards; //the number for USING a card
+	$scope.creditCardNumber; //the number for ADDING a card
+	$scope.cardToDelete; //card you're trying to delete
+
 	
+
+
+
 	var now = new Date();
 	var nowplustwo = new Date();
 	nowplustwo.setDate(now.getDate() + 2);
@@ -258,6 +267,14 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			else{
 				$scope.error="Sorry, there are no available rooms for this period of time.";
 			}
+
+			getCardsResponse = paymentFactory.GetCreditCards({
+				"username": $rootScope.currentUser
+			});
+			getCardsResponse.$promise.then(function(data){
+				$scope.creditCards = data; //data is an array
+			});
+
 		});
 	};
 	
@@ -382,7 +399,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		cancelReservationResponse.$promise.then(function(data){});
 	}
 
-	$scope.cardNumber;
+	/*$scope.cardNumber;
 	$scope.creditCards;
 
 	getCardsResponse = paymentFactory.GetCreditCards({
@@ -390,14 +407,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	});
 	getCardsResponse.$promise.then(function(data){
 		$scope.creditCards = data; //data is an array
-	});
+	});*/
 
 })
 
 
 .controller('reportController', function($rootScope, $scope, reportFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
-	//$rootScope.currentUser;
 	$scope.creditCards;
 	$scope.resReport = {};
 	$scope.popCatReport = {};
@@ -429,6 +445,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 
 .controller('paymentController', function($rootScope, $scope, paymentFactory){
+
+	$("#expirationDatePicker").datetimepicker(
+	{
+		format: 'YYYY-MM-DD',
+		minDate: new Date()
+	});
+	
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$scope.creditCards; //the number for USING a card
 	$scope.creditCardNumber; //the number for ADDING a card
@@ -442,14 +465,24 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	});
 
 	$scope.addCard = function(){
+		$scope.expirationDate = $("#expirationDatePicker").data("date");
 		addCreditCardResponse = paymentFactory.AddCreditCard({
 			"username":$rootScope.currentUser,
 			"card_number": $scope.creditCardNumber,
 			"cvv": $scope.cvv,
 			"expiration_date": $scope.expirationDate,
-			"card_name": $scope.cardName //name of the owner of the card, not necesarilly the username
+			"name": $scope.cardName //name of the owner of the card, not necesarilly the username
 		});
-		addCreditCardResponse.$promise.then(function(data){});
+		addCreditCardResponse.$promise.then(function(data){
+			
+			getCardsResponse = paymentFactory.GetCreditCards({
+				"username": $rootScope.currentUser
+			});
+
+			getCardsResponse.$promise.then(function(cardData){
+				$scope.creditCards = cardData; //data is an array
+			});
+		});
 	}
 
 

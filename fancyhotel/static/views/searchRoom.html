@@ -82,12 +82,22 @@
     <b>Total cost:</b> { {price of reservation (including extra bed) }}.<br /><br />
 
 
-    <b>Select credit card:</b> 
+    
 
-<select ng-model="cardNumber" required>
+<!--select ng-model="cardNumber" required>
     <option ng-repeat="card in creditCards" value="{{card[$index].card_number}}" selected="select">{{card[$index].card_number}}
     </option>
-</select>
+</select-->
+
+<div class="container"> 
+    <b>Select credit card:</b> 
+    <div class="form-group">
+        <label for="4cardnum">Card number</label>
+            <select ng-model="cardNumber" ng-required>
+            <option  ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}">{{card.card_number}}</option> 
+        </select>
+    </div>
+</div>
 
     <br />
     No credit card? Add one <a href="#/payment">here</a>.
