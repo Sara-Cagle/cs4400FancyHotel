@@ -79,6 +79,38 @@ class CreateReservationResource(Resource):
 			
 		return {"id": id, "message": message, "result": result}
 		
+class UpdateReservationResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument('reservation_id', type=str, required=True, help="Please provide a reservation_id")
+		self.reqparse.add_argument('checkIn', type=str, required=True, help="Please provide a check-in date")
+		self.reqparse.add_argument('checkOut', type=str, required=True, help="Please provide a check-out date")
+		self.reqparse.add_argument('username', type=str, required=True, help="Please provide a user name")
+		super(UpdateReservationResource, self).__init__()
+	
+	def put(self):
+		args = self.reqparse.parse_args()
+		 
+		total_cost = 0
+		checkInDate = datetime.strptime(args["checkIn"], "%Y-%m-%d")
+		checkOutDate = datetime.strptime(args["checkOut"], "%Y-%m-%d")
+		deltaDays = (checkOutDate - checkInDate).days
+		
+		rooms = db.mysqldb.get_rooms_for_reservation(args['username'], args['reservation_id'])
+		for room in rooms:
+			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], args['reservation_id']):
+				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
+				
+			total_cost += room['cost'] * deltaDays
+			if room['extra_bed_or_not'] == 1:
+				total_cost + room['extra_bed_price'] * deltaDays
+		#For the rooms in the reservation, check if each room is free during the requested times. If the room is not free, return false.
+
+		message, status = db.mysqldb.update_reservation(args['username'], args['reservation_id'], args['checkIn'], args['checkOut'], total_cost)
+		if status:
+			return {"message": message, "result": status}
+		else:
+			return {"message": message, "result": status}, 400
 
 class ReservationResource(Resource):
 	def __init__(self):

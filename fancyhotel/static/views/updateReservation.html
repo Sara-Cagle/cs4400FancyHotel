@@ -49,9 +49,19 @@ Current checkout date: {{currRes.checkout_date}}<br />
   <form ng-submit="searchAvailability()" class="form-horizontal">
 
   	<label for="newStartDate">New Checkin Date:</label>
-  	<input type="date" class="form-control" placeholder="New Checkin Date" ng-model="newCheckinDate" required><br />
-  	<label for="newStartDate">New Checkout Date:</label>
-  	<input type="date" class="form-control" placeholder="New Checkout Date" ng-model="newCheckoutDate" required>
+  	<div class='input-group date' id='newStartDate'>
+        <input type="text" class="form-control" placeholder="Start Date" required>
+        <span class="input-group-addon">
+        <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+    </div>
+  	<label for="newEndDate">New Checkout Date:</label>
+  	<div class='input-group date' id='newEndDate'>
+        <input type="text" class="form-control" placeholder="End Date" required>
+        <span class="input-group-addon">
+        <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+    </div>
 
   	<button type="submit" class="btn btn-default">Search availability</button>
   </form>
