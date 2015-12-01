@@ -299,7 +299,6 @@ class MysqlManager(object):
 					"username": username,
 					"card_number": card_number,
 					"cancelled_or_not": cancelled_or_not,
-					#"cancelled_date": str(cancelled_date),
 					"rooms": rooms
 				}
 			else:
@@ -481,6 +480,33 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 	
+	def get_reservation_by_card_number(self, username, card_number):
+		cursor = self.connection.cursor()
+		try:
+			cursor.execute('''
+				SELECT *
+				FROM Fancy_Hotel.Reservation
+				WHERE card_number = %(card_number)s AND username = %(username)s;
+				''',
+				{"card_number": card_number, "username": username}
+			)
+			rows = cursor.fetchall()
+			reservations = []
+			for reservation_id, checkin_date, checkout_date, total_cost, username, card_number, cancelled_or_not in rows:
+				reservations.append({
+					"reservation_id": reservation_id,
+					"checkin_date": str(checkin_date), 
+					"checkout_date": str(checkout_date), 
+					"total_cost": total_cost, 
+					"username": username, 
+					"card_number": card_number, 
+					"cancelled_or_not": cancelled_or_not
+					})
+			return reservations
+		finally:
+			cursor.close()
+
+
 	def add_review(self, username, location, comment, rating):
 		cursor = self.connection.cursor()
 		try:

@@ -271,5 +271,15 @@ class RevenueReportResource(Resource):
 	def get(self):
 		return db.mysqldb.revenue_report()
 
+class GetReservationByCardNumberResource(Resource):
+	def __init__(self):
+		self.reqparse = reqparse.RequestParser()
+		self.reqparse.add_argument("username", type=str, required=True, help="Please provide a username")
+		self.reqparse.add_argument("card_number", type=str, required=True, help="Please provide a card number")
+
+	def get(self):
+		args = self.reqparse.parse_args()
+		return db.mysqldb.get_reservation_by_card_number(args['username'], args['card_number']) #returns an array of reservations
+
 
 

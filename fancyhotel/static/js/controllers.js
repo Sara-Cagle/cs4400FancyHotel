@@ -88,6 +88,11 @@ resourceModule.factory('paymentFactory', function($resource){
 		DeleteCreditCard:{
 			method: 'DELETE',
 			url: '/api/payment'
+		},
+		GetReservationByCardNumber:{
+			method: 'GET',
+			url:'/api/reservation/cardNumber',
+			isArray: true //returns an array
 		}
 	})
 })
@@ -360,6 +365,24 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			console.log("credit card info required");
 			window.alert("Please select a credit card for payment. If you have no credit card, please add one first.");
 		}
+		var cardExpireDate;
+		var currentCard = $scope.cardNumber;
+		console.log("Current card number is :");
+		console.log(currentCard);
+		for(i=0; i<$scope.creditCards.length; i++){
+			if($scope.creditCards[i].card_number==$scope.cardNumber){
+				cardExpireDate = $scope.creditCards[i].expiration_date;
+				console.log("Found the card number, it is:");
+				console.log($scope.creditCards[i].card_number);
+				break;
+			}
+		}
+		if(cardExpireDate<$scope.checkOut){
+			console.log("The card's expiration date is sooner than the checkout date");
+			window.alert("You can't use this card because it expires before your stay is done.");
+			console.log("Reservation failed");
+			return;
+		}
 		var rooms = []
 		for(var key in $scope.selectedRooms)
 		{
@@ -574,9 +597,6 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		$scope.revenueReport=data;
 	});
 
-	/*if(Object.keys($scope.data).length==0){
-		$scope.emptyTable="Sorry, no results were found!";
-	}*/
 
 
 })
@@ -622,22 +642,65 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 			getCardsResponse.$promise.then(function(cardData){
 				$scope.creditCards = cardData; //data is an array
+				window.alert("Card successfully added.");
 			});
 		});
 	}
 
-/*if($scope.creditCards != null){
-	if($scope.creditCards.length!=0){
-		console.log("creditCards isn't null or empty");
-		$scope.cardToDelete = $scope.creditCards[$scope.creditCards.length-1].card_number;
-	}
-}*/
+	
 	$scope.deleteCard = function(){
+		var reservationsByCard=[];
+		var today = new Date();
+
+		//grabbing existing reservations with this card to ensure we don't delete anything in use
+		getReservationByCardNumberResponse = paymentFactory.GetReservationByCardNumber({
+			"username": $rootScope.currentUser,
+			"card_number": $scope.cardToDelete
+		});
+		getReservationByCardNumberResponse.$promise.then(function(data){
+			reservationsByCard = data; //an array
+		})
+
+		var cardExpireDate;
+		for(i=0; i<$scope.creditCards.length; i++){ //grabbing expiration date of the card we want to delete
+			if($scope.creditCards[i].card_number==$scope.cardToDelete){
+				cardExpireDate = $scope.creditCards[i].expiration_date;
+				console.log("Found the card number, it is:");
+				console.log($scope.creditCards[i].card_number);
+				break;
+			}
+		}
+		if(reservationsByCard != 0){
+			for(i=0; i<reservationsByCard.length; i++){
+				if(today< reservationsByCard[i].checkout_date){
+					//if(reservationsByCard[i].checkout_date > cardExpireDate ){
+						console.log("card is in use until:");
+						console.log(reservationsByCard[i].checkout_date);
+						console.log("and can't be deleted");
+						window.alert("This card is being used for a reservation and can't be deleted until your stay has been completed.");
+						return;
+					//}
+				}
+			}
+		}
+		
+		
+		/*if(cardExpireDate<$scope.checkOut){
+			console.log("The card's expiration date is sooner than the checkout date");
+			window.alert("You can't use this card because it expires before your stay is done.");
+			console.log("Reservation failed");
+			return;
+		}*/
+
+
+
 		deleteCreditCardResponse = paymentFactory.DeleteCreditCard({
 			"username": $rootScope.currentUser,
 			"card_number": $scope.cardToDelete
 		});
-		deleteCreditCardResponse.$promise.then(function(data){});
+		deleteCreditCardResponse.$promise.then(function(data){
+			window.alert("Card successfully deleted.");
+		});
 	}
 
 
@@ -716,10 +779,6 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		templateUrl: 'static/views/payment.html',
 		controller: 'paymentController'
 	})
-	/*.when('/confirmation', {
-		templateUrl: 'static/views/reservationConfirmation.html'//,
-		/*controller: 'contentController'
-	})*/
 	.when('/resReport', {
 		templateUrl: 'static/views/reservationReport.html',
 		controller: 'reportController'
