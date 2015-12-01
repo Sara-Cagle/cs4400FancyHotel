@@ -340,11 +340,11 @@ class MysqlManager(object):
 	def update_reservation(self, username, reservation_id, checkin_date, checkout_date, total_cost):
 		cursor = self.connection.cursor()
 		try:
-			reservation = self.get_reservation(reservation_id, False)
+			reservation = self.get_reservation(username, reservation_id, False)
 			if reservation:
 				cursor.execute(
 					'''UPDATE Fancy_Hotel.Reservation
-					SET checkin_date = %(checkin_date)s, checkout_date = %(checkout_date)s, total_cost = %(total_cost)
+					SET checkin_date = %(checkin_date)s, checkout_date = %(checkout_date)s, total_cost = %(total_cost)s
 					WHERE reservation_id = %(reservation_id)s AND username = %(username)s
 					''',
 					{"reservation_id": reservation_id, "checkin_date":checkin_date, "checkout_date": checkout_date, "username": username, "total_cost": total_cost}
