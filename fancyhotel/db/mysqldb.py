@@ -364,7 +364,7 @@ class MysqlManager(object):
 			if reservation:
 				total_cost = 0
 				checkin_date = datetime.strptime(reservation['checkin_date'], "%Y-%m-%d");
-				deltaDays = (datetime.now() - checkin_date).days
+				deltaDays = (checkin_date - datetime.now()).days
 				if deltaDays <= 1:
 					total_cost = reservation['total_cost']
 				elif deltaDays < 4:
