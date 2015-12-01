@@ -229,6 +229,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.viewPart1 = true; //these views are for the update page
 	$scope.viewPart2 = false;
 	$scope.viewPart3 = false;
+	$scope.confirmationPage = false;
 	$scope.currRes =''; //this is for the update page
 	$scope.newCost = 0;
 
@@ -299,7 +300,9 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		);
 		make_response.$promise.then(function(data)
 		{
-			console.log(data);	
+			console.log(data);
+			$scope.confirmationData = data;
+			$scope.confirmationPage = true;
 		});
 	}
 
