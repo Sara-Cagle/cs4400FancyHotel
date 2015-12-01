@@ -137,16 +137,19 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$scope.confirmPass;
 	var usernameFail = false;
+	$scope.username = '';
 	$scope.myRegex = /C[a-zA-Z0-9]{4}/;
 
 	$scope.submit = function() {
 		if($scope.confirmPass !== $scope.password){
 			window.alert("Please check your password. There were inconsistencies when you tried to confirm it.");
 			console.log("Your passwords don't match.");
+			return;
 		}
-		if($scope.username.length!=5){
+		if($scope.username == undefined || $scope.username.length!=5){
 			window.alert("Usernames must be a C followed by 4 characters.");
 			console.log("Username wasn't 5 characters");
+			return;
 		}
 
 		response = authFactory.Register({
@@ -319,9 +322,11 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.updateTotalCost = function()
 	{
 		$scope.total_cost = 0;
-		var check_in = $("#startDatePicker").data("DateTimePicker").date();
-        var check_out = $("#endDatePicker").data("DateTimePicker").date();
-		var delta = Math.round(moment.duration(check_out.diff(check_in)).asDays())
+		var check_in_raw = $("#startDatePicker").data("DateTimePicker").date();
+		var check_out_raw = $("#endDatePicker").data("DateTimePicker").date();
+		var check_in = moment([check_in_raw.year(), check_in_raw.month(), check_in_raw.date()]);
+        var check_out = moment([check_out_raw.year(), check_out_raw.month(), check_out_raw.date()]);
+		var delta = Math.round(moment.duration(check_out.diff(check_in)).asDays());
 		for(var key in $scope.selectedRooms)
 		{
 			if($scope.selectedRooms[key])
@@ -456,28 +461,30 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 	$scope.searchAvailability = function(){
 		$scope.newCheckinDate = $("#newStartDate").data("date");
-		$scope.newCheckoutDate = $("#newEndDate").data("date");
-		var delta = Math.round(moment.duration($("#newEndDate").data("DateTimePicker").date().diff($("#newStartDate").data("DateTimePicker").date())).asDays());
+		$scope.newCheckoutDate = $("#newEndDate").data("date"); 
+		var checkin_date_raw = $("#newStartDate").data("DateTimePicker").date();
+		var checkout_date_raw = $("#newEndDate").data("DateTimePicker").date();
+		var newCheckinDate = moment([checkin_date_raw.year(), checkin_date_raw.month(), checkin_date_raw.date()]);
+		var newCheckoutDate = moment([checkout_date_raw.year(), checkout_date_raw.month(), checkout_date_raw.date()]);
+		var delta = moment.duration(newCheckoutDate.diff(newCheckinDate)).asDays();
 		updateReservationConfirmResponse = reservationFactory.UpdateReservationConfirm({
 			"reservation_id": $scope.resID,
 			"checkIn": $scope.newCheckinDate,
 			"checkOut": $scope.newCheckoutDate,
 			"username":$rootScope.currentUser
+		},
+		function(successData)
+		{
+			$scope.viewPart3 = true;
+			$scope.availability["message"] = "Your selected rooms are available for your newly selected dates. Would you like to confirm your updated reservation?"
+			$scope.availability["avail"] = true;
+			$scope.newCost = $scope.calculateNewCost(delta, successData.data['rooms']);
+		},
+		function(errorData)
+		{
+			window.alert("Sorry, but your selected rooms are not available for your newly selected dates.");
 		});
-	//handle promise
-		updateReservationConfirmResponse.$promise.then(function(data){
-			if(data["result"]==true){ //rooms are available for booking
-				$scope.viewPart3 = true;
-				$scope.availability["message"] = "Your selected rooms are available for your newly selected dates. Would you like to confirm your updated reservation?"
-				$scope.availability["avail"] = true;
-				$scope.newCost = $scope.calculateNewCost(delta, data['rooms']);
-			}
-			else{
-				$scope.availability["message"] = "Sorry, but your selected rooms are not available for your newly selected dates."
-				$scope.availability["avail"] = false;
-				//handle that there were no available rooms
-			}
-		});
+
 	};
 
 	$scope.calculateNewCost = function(time_delta, rooms)
@@ -496,8 +503,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		{
 			"username":$rootScope.currentUser,
 			"reservation_id": $scope.resID,
-			"checkIn": $scope.newCheckinDate,
-			"checkOut": $scope.newCheckoutDate
+			"checkIn": $("#newStartDate").data("date"),
+			"checkOut": $("#newEndDate").data("date")
 		});
 		//handle promise
 		updateReservationResponse.$promise.then(function(data){

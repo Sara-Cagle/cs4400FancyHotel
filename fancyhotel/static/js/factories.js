@@ -1,1 +1,0 @@
-/*Factories contain information that should be shared across controllers. Most of the variables will be stored in factories. */
