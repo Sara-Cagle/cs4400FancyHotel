@@ -177,6 +177,11 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.viewPart3 = false;
 	$scope.currRes =''; //this is for the update page
 	$scope.newCost = 0;
+
+
+
+	/*document.getElementById('startDate').valueAsDate = new Date();
+	document.getElementById('endDate').valueAsDate = new Date();*/
 	
 
 	$scope.availability={ //this is availability of rooms for an update reservation
@@ -327,6 +332,21 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 })
 
+
+.controller('paymentController', function($rootScope, $scope, paymentFactory){
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+	cardInfoResponse;/* = reviewFactory.AddReview({
+			"location": $scope.location, 
+			"comment": $scope.comment,
+			"rating": $scope.rating, 
+			"username": $rootScope.currentUser
+		});
+	//handle promise
+		addReviewResponse.$promise.then(function(data){});
+	}*/
+
+})
+
 .controller('reviewController', function($rootScope, $scope, reviewFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$scope.comment = ''; //just in case the user doesn't give one, so in our'd DB, we won't have null, instead we'll have ''
@@ -397,8 +417,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		controller: 'reservationController'
 	})
 	.when('/payment', {
-		templateUrl: 'static/views/payment.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/payment.html',
+		controller: 'paymentController'
 	})
 	.when('/confirmation', {
 		templateUrl: 'static/views/reservationConfirmation.html'//,
