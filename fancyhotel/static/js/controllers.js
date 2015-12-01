@@ -155,28 +155,17 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			"password": $scope.password,
 			"firstName": $scope.firstName,
 			"lastName": $scope.lastName
-		});
-
-		response.$promise.then(function(data){
-			if(data["result"] == true){
-				console.log("account created, being redirected to login screen for official login.");
-				$window.location.href='#/login';
-			}
-			/*if(data["result"]==false)*/else{
-				console.log("This username is already taken. Please select another.");
-				window.alert("This username is already taken. Please select another.");
-				usernameFail = true;
-			}
-			/*else{
-				console.log("account registration failed");
-				window.alert("Sorry, your accout could not be registered.");
-				
-			}*/
-		});
-		if(usernameFail == true){
-			window.alert("This username is already taken. Please select another. (username fail bool)");
 		}
-
+		, function(successData)
+		{
+			console.log("account created, being redirected to login screen for official login.");
+			$window.location.href='#/login';
+		},
+		function(errorData)
+		{
+			console.log("This username is already taken. Please select another.");
+			window.alert("This username is already taken. Please select another.");
+		});
 	}
 	
 })
@@ -189,20 +178,18 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		response = authFactory.Login({
 			"username": $scope.username,
 			"password": $scope.password
-		});
-
-		response.$promise.then(function(data){
-			if(data["result"] == true){
-				$rootScope.currentUser = $scope.username;
-				$rootScope.getUserType();
-				console.log("login success!");
-				console.log("redirecting...");
-				$window.location.href='#/portal';
-			}
-			else{
-				console.log("login failed");
-			//do something else, they failed to log in.
-			}
+		},
+		function(successData){
+			$rootScope.currentUser = $scope.username;
+			$rootScope.getUserType();
+			console.log("login success!");
+			console.log("redirecting...");
+			$window.location.href='#/portal';
+		},
+		function(errorData)
+		{
+			console.log("login failed");
+			window.alert("Invalid credentials");
 		});
 	}
 
@@ -649,57 +636,16 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 	
 	$scope.deleteCard = function(){
-		var reservationsByCard=[];
-		var today = new Date();
-
-		//grabbing existing reservations with this card to ensure we don't delete anything in use
-		getReservationByCardNumberResponse = paymentFactory.GetReservationByCardNumber({
-			"username": $rootScope.currentUser,
-			"card_number": $scope.cardToDelete
-		});
-		getReservationByCardNumberResponse.$promise.then(function(data){
-			reservationsByCard = data; //an array
-		})
-
-		var cardExpireDate;
-		for(i=0; i<$scope.creditCards.length; i++){ //grabbing expiration date of the card we want to delete
-			if($scope.creditCards[i].card_number==$scope.cardToDelete){
-				cardExpireDate = $scope.creditCards[i].expiration_date;
-				console.log("Found the card number, it is:");
-				console.log($scope.creditCards[i].card_number);
-				break;
-			}
-		}
-		if(reservationsByCard != 0){
-			for(i=0; i<reservationsByCard.length; i++){
-				if(today< reservationsByCard[i].checkout_date){
-					//if(reservationsByCard[i].checkout_date > cardExpireDate ){
-						console.log("card is in use until:");
-						console.log(reservationsByCard[i].checkout_date);
-						console.log("and can't be deleted");
-						window.alert("This card is being used for a reservation and can't be deleted until your stay has been completed.");
-						return;
-					//}
-				}
-			}
-		}
-		
-		
-		/*if(cardExpireDate<$scope.checkOut){
-			console.log("The card's expiration date is sooner than the checkout date");
-			window.alert("You can't use this card because it expires before your stay is done.");
-			console.log("Reservation failed");
-			return;
-		}*/
-
-
-
 		deleteCreditCardResponse = paymentFactory.DeleteCreditCard({
 			"username": $rootScope.currentUser,
 			"card_number": $scope.cardToDelete
-		});
-		deleteCreditCardResponse.$promise.then(function(data){
+		}, function(successData)
+		{
 			window.alert("Card successfully deleted.");
+		},
+		function(errorData)
+		{
+			window.alert(errorData.data['message']);
 		});
 	}
 

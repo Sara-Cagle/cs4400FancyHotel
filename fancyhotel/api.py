@@ -232,7 +232,15 @@ class CreditCardResource(Resource):
 		
 	def delete(self):
 		args = self.delete_reqparse.parse_args()
+		reservations = db.mysqldb.get_reservation_by_card_number(args['username'], args['card_number'])
+		
+		today = datetime.now()
+		for reservation in reservations:
+			if (datetime.strptime(reservation['checkout_date'], '%Y-%m-%d') - today).days > 0:
+				return {'message': "This card is used in a future reservation!", 'result': False}, 400
+
 		message, status = db.mysqldb.delete_credit_card(args['username'], args['card_number'])
+
 		if status:
 			return {'message': message, 'result': status}
 		return {'message': message, 'result': status}, 400
