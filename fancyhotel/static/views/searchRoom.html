@@ -76,10 +76,24 @@
         </tr>
     </table>
 
+    <br />
+    <br />
+
+    <b>Total cost:</b> { {price of reservation (including extra bed) }}.<br /><br />
+
+
+    <b>Select credit card:</b> 
+
+<select ng-model="cardNumber" required>
+    <option ng-repeat="card in creditCards" value="{{card[$index].card_number}}" selected="select">{{card[$index].card_number}}
+    </option>
+</select>
+
+    <br />
+    No credit card? Add one <a href="#/payment">here</a>.
     <button type="submit" class="btn btn-default">Book these rooms</button>
 </form>
 
-    <!--{"capacity":2,"cost":100,"extra_bed_price":100,"location":"Atlanta","room_number":1,"room_type":"Suite"}-->
 </div><!--Toggles showing the resulting available rooms-->
 
 

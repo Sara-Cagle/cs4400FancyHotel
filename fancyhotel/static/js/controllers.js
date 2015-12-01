@@ -73,6 +73,22 @@ resourceModule.factory('reviewFactory', function($resource){
 	})
 })
 
+resourceModule.factory('paymentFactory', function($resource){
+	return $resource('/api', {}, {
+		GetCreditCards:{
+			method: 'GET',
+			url: '/api/payment'
+		},
+		AddCreditCard:{
+			method: 'PUT',
+			url: '/api/payment'
+		},
+		DeleteCreditCard:{
+			method: 'DELETE',
+			url: '/api/payment'
+		}
+	})
+})
 
 
 
@@ -103,6 +119,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			$rootScope.userType = "invalid user type";
 		}
 	}
+
+	$rootScope.getCost = function(){
+		var cost = 0;
+
+	}
+
 })
 
 
@@ -173,8 +195,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 
 })
-
-.controller('reservationController', function($rootScope, $scope, reservationFactory){
+.controller('reservationController', function($rootScope, $scope, reservationFactory, paymentFactory){
 	
 	var now = new Date();
 	var nowplustwo = new Date();
@@ -361,13 +382,23 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		cancelReservationResponse.$promise.then(function(data){});
 	}
 
+	$scope.cardNumber;
+	$scope.creditCards;
+
+	getCardsResponse = paymentFactory.GetCreditCards({
+		"username": $rootScope.currentUser
+	});
+	getCardsResponse.$promise.then(function(data){
+		$scope.creditCards = data; //data is an array
+	});
+
 })
 
 
 .controller('reportController', function($rootScope, $scope, reportFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	//$rootScope.currentUser;
-
+	$scope.creditCards;
 	$scope.resReport = {};
 	$scope.popCatReport = {};
 	$scope.revenueReport = {};
@@ -399,15 +430,37 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 .controller('paymentController', function($rootScope, $scope, paymentFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
-	cardInfoResponse;/* = reviewFactory.AddReview({
-			"location": $scope.location, 
-			"comment": $scope.comment,
-			"rating": $scope.rating, 
-			"username": $rootScope.currentUser
+	$scope.creditCards; //the number for USING a card
+	$scope.creditCardNumber; //the number for ADDING a card
+	$scope.cardToDelete; //card you're trying to delete
+
+	getCardsResponse = paymentFactory.GetCreditCards({
+		"username": $rootScope.currentUser
+	});
+	getCardsResponse.$promise.then(function(data){
+		$scope.creditCards = data; //data is an array
+	});
+
+	$scope.addCard = function(){
+		addCreditCardResponse = paymentFactory.AddCreditCard({
+			"username":$rootScope.currentUser,
+			"card_number": $scope.creditCardNumber,
+			"cvv": $scope.cvv,
+			"expiration_date": $scope.expirationDate,
+			"card_name": $scope.cardName //name of the owner of the card, not necesarilly the username
 		});
-	//handle promise
-		addReviewResponse.$promise.then(function(data){});
-	}*/
+		addCreditCardResponse.$promise.then(function(data){});
+	}
+
+
+	$scope.deleteCard = function(){
+		deleteCreditCardResponse = paymentFactory.DeleteCreditCard({
+			"username": $rootScope.currentUser,
+			"card_number": $scope.cardToDelete
+		});
+		deleteCreditCardResponse.$promise.then(function(data){});
+	}
+
 
 })
 
