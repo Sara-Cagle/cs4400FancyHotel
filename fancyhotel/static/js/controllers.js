@@ -130,31 +130,47 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 .controller('registerController', function($rootScope, $scope, authFactory, $window) {
 	$rootScope.alreadyLoggedIn();
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
-
+	$scope.confirmPass;
+	var usernameFail = false;
 	$scope.myRegex = /C[a-zA-Z0-9]{4}/;
-	$scope.length = 5; 
-	$scope.password = $scope.confirmpassword;
 
 	$scope.submit = function() {
+		if($scope.confirmPass !== $scope.password){
+			window.alert("Please check your password. There were inconsistencies when you tried to confirm it.");
+			console.log("Your passwords don't match.");
+		}
+		if($scope.username.length!=5){
+			window.alert("Usernames must be a C followed by 4 characters.");
+			console.log("Username wasn't 5 characters");
+		}
+
 		response = authFactory.Register({
 			"username": $scope.username,
 			"email": $scope.email,
 			"password": $scope.password,
 			"firstName": $scope.firstName,
-			"lastName": $scope.lastName,
-			"confirmpassword": $scope.confirmpassword
+			"lastName": $scope.lastName
 		});
 
-		response.$promise.then(function(data)
-		{
+		response.$promise.then(function(data){
 			if(data["result"] == true){
-				console.log("account created, being redirected to login screen for official login");
+				console.log("account created, being redirected to login screen for official login.");
 				$window.location.href='#/login';
 			}
-			else{
-				console.log("account registration failed");
+			/*if(data["result"]==false)*/else{
+				console.log("This username is already taken. Please select another.");
+				window.alert("This username is already taken. Please select another.");
+				usernameFail = true;
 			}
+			/*else{
+				console.log("account registration failed");
+				window.alert("Sorry, your accout could not be registered.");
+				
+			}*/
 		});
+		if(usernameFail == true){
+			window.alert("This username is already taken. Please select another. (username fail bool)");
+		}
 
 	}
 	

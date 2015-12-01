@@ -17,7 +17,6 @@
       Usernames must start with a C followed by 4 letters or numbers.
       <span ng-show="register.username.$error.pattern">
        Please follow the username format!</span>
-       <p class="alert" ng-show="register.username.$error.pattern">Numbers only, please.</p>
     </div>
     <div class="form-group">
       <label for="username">First Name:</label>
@@ -37,7 +36,7 @@
     </div>
     <div class="form-group">
       <label for="password">Confirm password:</label>
-      <input type="password" class="form-control" placeholder="Confirm password" required>
+      <input type="password" class="form-control" placeholder="Confirm password" ng-model="confirmPass" required>
     </div>
     <button type="submit" class="btn btn-default">Register</button>
   </form>
