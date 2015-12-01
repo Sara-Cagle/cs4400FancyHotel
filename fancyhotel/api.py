@@ -61,7 +61,11 @@ class CreateReservationResource(Resource):
 		args = self.reqparse.parse_args()
 		json_body = request.json
 		print json_body['rooms']
-		return db.mysqldb.insert_reservation(args['username'], args['checkIn'], args['checkOut'], args['card_number'], json_body['rooms'])
+		id, message, result = db.mysqldb.insert_reservation(args['username'], args['checkIn'], args['checkOut'], args['card_number'], json_body['rooms'])
+		if result:
+			return {"id": id, "message": message, "result": result}, 400
+			
+		return {"id": id, "message": message, "result": result}
 		
 
 class ReservationResource(Resource):
