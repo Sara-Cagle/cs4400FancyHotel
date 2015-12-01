@@ -603,3 +603,5 @@ class MysqlManager(object):
 			return report
 		finally:
 			cursor.close()
+
+	

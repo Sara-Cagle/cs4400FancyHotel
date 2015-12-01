@@ -94,7 +94,7 @@
     <div class="form-group">
         <label for="4cardnum">Card number</label>
             <select ng-model="cardNumber" ng-required>
-            <option  ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}">{{card.card_number}}</option> 
+            <option  ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}">{{creditCards[$index].card_number}}</option> 
         </select>
     </div>
 </div>
@@ -106,6 +106,8 @@
 
 </div><!--Toggles showing the resulting available rooms-->
 
+
+<a href="#/portal">Return to the portal page</a>
 
 </div><!--Toggles the view based on if you're a customer-->
 </div><!--Toggles the view based on if you're logged in-->
