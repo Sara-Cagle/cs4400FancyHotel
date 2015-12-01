@@ -242,6 +242,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.confirmationPage = false;
 	$scope.currRes =''; //this is for the update page
 	$scope.newCost = 0;
+	$scope.total_cost = 0;
 
 	$scope.availability={ //this is availability of rooms for an update reservation
 		"avail": '',
@@ -286,7 +287,9 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.updateTotalCost = function()
 	{
 		$scope.total_cost = 0;
-		
+		check_in = $("#startDatePicker").data("DateTimePicker").date();
+        check_out = $("#endDatePicker").data("DateTimePicker").date();
+		delta = Math.floor(moment.duration(check_out.diff(check_in)).asDays())
 		for(var key in $scope.selectedRooms)
 		{
 			if($scope.selectedRooms[key])
@@ -303,10 +306,9 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 				);
 			}
 		}
+		$scope.total_cost *= (delta+1);
 	};
 		
-		
-
 	
 	$scope.bookRooms = function(){
 		var rooms = []

@@ -74,7 +74,7 @@
                     </table>
                     <br />
                     <br />
-                    <b>Total cost:</b> $ {{$scope.totalCost}}. <br /><br />
+                    <b>Total cost:</b> <span> ${{total_cost}}</span> <a class="btn btn-primary" href="javascript:void(0);" ng-click="updateTotalCost()">Update total cost</a><br /><br />
                     <b>Select credit card:</b> 
                     <select ng-model="cardNumber" required>
                         <option ng-model="blank" ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}" selected="select">{{creditCards[$index].card_number}}
