@@ -68,7 +68,7 @@
                             <td>{{room.cost}} </td>
                             <td>{{room.extra_bed_price}}</td>
                             <td>
-                                <input name="extraBedSelection" type="checkbox" ng-value="extraBed" /> 
+                                <input name="extraBedSelection" type="checkbox" ng-value="extraBed" ng-model="extra_beds[room.location+room.room_number]" /> 
                             </td>
                         </tr>
                     </table>

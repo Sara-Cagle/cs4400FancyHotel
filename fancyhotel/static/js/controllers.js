@@ -274,6 +274,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.error = '';
 	$scope.hideForm = false;
 	$scope.selectedRooms = {};
+	$scope.extra_beds = {};
 	
 	//api/blah/blah?username=Csara
 	$scope.submit = function(){
@@ -311,7 +312,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		$scope.total_cost = 0;
 		var check_in = $("#startDatePicker").data("DateTimePicker").date();
         var check_out = $("#endDatePicker").data("DateTimePicker").date();
-		var delta = Math.floor(moment.duration(check_out.diff(check_in)).asDays())
+		var delta = Math.round(moment.duration(check_out.diff(check_in)).asDays())
 		for(var key in $scope.selectedRooms)
 		{
 			if($scope.selectedRooms[key])
@@ -322,13 +323,16 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 						if(room.location + room.room_number === key)
 						{
 							$scope.total_cost += room.cost;
-							$scope.total_cost += room.extra_bed_or_not ? room.extra_bed_price : 0;
+							if((room.location + room.room_number) in $scope.extra_beds && $scope.extra_beds[room.location + room.room_number])
+							{
+								$scope.total_cost += room.extra_bed_price;
+							}
 						}	
 					}
 				);
 			}
 		}
-		$scope.total_cost *= (delta+1);
+		$scope.total_cost *= (delta);
 	};
 		
 	
@@ -343,13 +347,27 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 					{
 						if(room.location + room.room_number === key)
 						{
-							rooms.push({
-								"room_number": room.room_number,
-								"location": room.location,
-								"cost": room.cost,
-								"extra_bed_price": room.extra_bed_price,
-								"extra_bed_or_not": 0 //something here
-							});
+							if((room.location + room.room_number) in $scope.extra_beds && $scope.extra_beds[room.location + room.room_number])
+							{
+								rooms.push({
+									"room_number": room.room_number,
+									"location": room.location,
+									"cost": room.cost,
+									"extra_bed_price": room.extra_bed_price,
+									"extra_bed_or_not": 1
+								});
+							}
+							else
+							{
+								rooms.push({
+									"room_number": room.room_number,
+									"location": room.location,
+									"cost": room.cost,
+									"extra_bed_price": room.extra_bed_price,
+									"extra_bed_or_not": 0	
+							
+								});
+							}
 						}	
 					}
 				);

@@ -70,8 +70,8 @@ class CreateReservationResource(Resource):
 		for room in json_body['rooms']:
 			total_cost += room['cost'] * deltaDays
 			if room['extra_bed_or_not'] == 1:
-				total_cost + room['extra_bed_price'] * deltaDays
-	
+				total_cost = total_cost + room['extra_bed_price']
+		total_cost *= deltaDays
 		id, message, result = db.mysqldb.insert_reservation(args['username'], args['checkIn'], args['checkOut'], args['card_number'], json_body['rooms'], total_cost)
 		
 		if not result:
