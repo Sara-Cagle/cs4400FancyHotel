@@ -1,4 +1,4 @@
-<h1>Revenue Report</h1>
+
 
 <div ng-hide="{{loggedInBool}}" important>
 	<h1>You aren't logged in yet! Please <a href="#/login">login</a> to view this page.</h1>
@@ -12,32 +12,15 @@
 </div>
 
 <div ng-show="{{userType=='manager'}}">
+	<h2>Revenue Report</h2><br /><br />
 
-put content here.<br /><br />
-
-
-
-<table>
-	<tr>
-		<th>Month</th><th>Location</th><th>Revenue</th>
-	</tr>
-	<tr ng-repeat="(month, locgroup) in revenueReport">
-		<td>{{month}}</td>
-		<td>
-			<div ng-repeat="(location, revenue) in locgroup">
-				<span>{{locgroup}}</span>
-				<br/>
-			</div>
-		</td>
-	</tr>
-</table>
-
-<!-- resReport = {};
-	$scope.popCatReport = {};
-	$scope.revenueReport = {};
- -->
-
-
+<ul ng-repeat="(month, locgroup) in revenueReport">
+  <li>{{getMonth(month)}}</li>
+  <ul ng-repeat="(location, cost) in locgroup">
+    <li >{{location}}: {{cost}}</li>
+    </li>
+  </ul>
+</ul>
 
 
 

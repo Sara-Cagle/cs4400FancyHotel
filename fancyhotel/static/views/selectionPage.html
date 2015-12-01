@@ -1,12 +1,5 @@
-<!-- <h1>Selection Page View</h1><br /><br />
-
-<p>Here we can select what we want to do. The main page after login</p>
-<p>This will likely have two different views itself based on who is logged in, the manager or customer</p>
-<p>Or maybe just have two views but they're toggled by a customer/manager variable?</p>
-
-<p>But that's not secure--do we need to implement security?</p> -->
 <div ng-hide="{{loggedInBool}}" important>
-	<h1>You aren't logged in yet! Please login to view this page.</h1>
+	<h1>You aren't logged in yet! Please <a href="#/login">login</a> to view this page.</h1>
 </div>
 
 <div ng-show="{{loggedInBool}}" important>
@@ -28,5 +21,5 @@
   <p><a href="#/revenueReport">View Revenue Report</a> </p>
 </div>
 
-<h1>You are a {{userType}}!</h1>
+<h2>You are a {{userType}}!</h2>
 </div>

@@ -21,18 +21,15 @@
 
 <hr>
 
-<table>
-  <tr>
-    <th>Month</th>
-    <th>Location</th>
-    <th>Count</th>
-  </tr>
-  <tr ng-repeat="(month, location) in data">
-    <td rowspan="2" ng-repeat="(place, count) in location">{{month}}</td>
-    <td>{{place}}</td>
-    <td>{{count}}</td>
-  </tr>
-</table>
+<ul ng-repeat="(month, locgroup) in resReport">
+  <li>{{getMonth(month)}}</li>
+  <ul >
+    <li ng-repeat="(location, count) in locgroup">
+      {{location}}: {{count}}
+    </li>
+  </ul>
+</ul>
+
 </div>
 
 <a href="#/portal">Return to the portal page</a>

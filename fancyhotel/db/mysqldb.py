@@ -523,7 +523,7 @@ class MysqlManager(object):
 				FROM Fancy_Hotel.Reservation AS res
 				JOIN (Fancy_Hotel.Reserves_Extra_Bed AS bed)
 				ON res.reservation_id = bed.reservation_id
-				WHERE Month(res.checkin_date) = 9 or Month(res.checkin_date) = 10
+				WHERE Month(res.checkin_date) = 8 or Month(res.checkin_date) = 9
 				GROUP BY MONTH(checkin_date), bed.location
 				'''
 			)
@@ -548,10 +548,11 @@ class MysqlManager(object):
 					FROM Fancy_Hotel.Room as room
 					JOIN (Fancy_Hotel.Reserves_Extra_Bed as bed, Fancy_Hotel.Reservation as res)
 					ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
-					WHERE Month(res.checkin_date) = 9 or Month(res.checkin_date) = 10
+					WHERE Month(res.checkin_date) = 8 
 					GROUP BY Month(res.checkin_date), room.location, room.type);
 				'''
 			)
+			#or Month(res.checkin_date) = 9
 			self.connection.commit()
 
 			cursor.execute(
@@ -589,7 +590,7 @@ class MysqlManager(object):
 				FROM Fancy_Hotel.Room as room
 				JOIN (Fancy_Hotel.Reserves_Extra_Bed as bed, Fancy_Hotel.Reservation as res)
 				ON room.location = bed.location AND room.room_number = bed.room_number AND res.reservation_id = bed.reservation_id
-				WHERE Month(res.checkin_date) = 9 or Month(res.checkin_date) = 10
+				WHERE Month(res.checkin_date) = 8 or Month(res.checkin_date) = 9
 				GROUP BY Month(res.checkin_date), room.location;
 				'''
 			)

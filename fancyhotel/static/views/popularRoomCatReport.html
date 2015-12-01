@@ -1,4 +1,4 @@
-<h1>Popular Room-Category Report</h1>
+
 
 
 <div ng-hide="{{loggedInBool}}" important>
@@ -14,10 +14,23 @@
 
 <div ng-show="{{userType=='manager'}}">
 
+<h2>Popular Room-Category Report</h2>
 
-put content here.
+<ul ng-repeat="(month, locgroup) in popCatReport">
+  <li>{{getMonth(month)}}</li>
+  <ul ng-repeat="(location, stats) in locgroup">
+    <li >{{location}}</li>
+    	<ul ng-repeat="stat in stats">
+    		<li>
+    			{{stat.type}}: {{stat.count}}
+    		</li>
+    	</ul>
+    </li>
+  </ul>
+</ul>
 
-</table>
+
+
 </div>
 
 <a href="#/portal">Return to the portal page</a>

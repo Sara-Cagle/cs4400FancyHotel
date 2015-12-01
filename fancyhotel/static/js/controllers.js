@@ -434,15 +434,6 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		cancelReservationResponse.$promise.then(function(data){});
 	};
 
-	/*$scope.cardNumber;
-	$scope.creditCards;
-
-	getCardsResponse = paymentFactory.GetCreditCards({
-		"username": $rootScope.currentUser
-	});
-	getCardsResponse.$promise.then(function(data){
-		$scope.creditCards = data; //data is an array
-	});*/
 
 })
 
@@ -450,10 +441,22 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 .controller('reportController', function($rootScope, $scope, reportFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$scope.creditCards;
-	$scope.resReport = {};
+	$scope.resReport;
 	$scope.popCatReport = {};
 	$scope.revenueReport = {};
 	$scope.emptyTable = "";
+
+	$scope.getMonth = function(month){
+		if(month==="8"){
+			return "August";
+		}
+		else if(month==="9"){
+			return "September";
+		}
+		else{
+			return "";
+		}
+	}
 
 
 	reservationReportResponse = reportFactory.ResReport(); 
@@ -462,12 +465,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	});
 
 	popCatReportResponse = reportFactory.PopularRoomCatReport(); 
-	reservationReportResponse.$promise.then(function(data){
+	popCatReportResponse.$promise.then(function(data){
 		$scope.popCatReport=data;
 	});
 
 	revenueReportResponse = reportFactory.RevenueReport(); 
-	reservationReportResponse.$promise.then(function(data){
+	revenueReportResponse.$promise.then(function(data){
 		$scope.revenueReport=data;
 	});
 
