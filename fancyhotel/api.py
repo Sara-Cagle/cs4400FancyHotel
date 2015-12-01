@@ -126,7 +126,7 @@ class ReservationResource(Resource):
 
 	def get(self, reservation_id):
 		args = self.getreqparse.parse_args()
-		reservation = db.mysqldb.get_reservation(args['username'], reservation_id, True)
+		reservation = db.mysqldb.get_reservation(args['username'], reservation_id, False)
 		if reservation:
 			return {"data": reservation, "result": True}
 		else:

@@ -263,6 +263,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.currRes =''; //this is for the update page
 	$scope.newCost = 0;
 	$scope.total_cost = 0;
+	$scope.cancelView1=true;
+	$scope.cancelView2=false;
 
 	$scope.availability={ //this is availability of rooms for an update reservation
 		"avail": '',
@@ -381,11 +383,17 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	//handle promise
 		getReservationResponse.$promise.then(function(data){
 			if(data["result"] == true){
+				$scope.cancelView1=false;
+				$scope.cancelView2=true;
 				$scope.viewPart2 = true;
 				$scope.viewPart1 = false;
 				$scope.currRes = data["data"];
+
+				$scope.refund_amount = $scope.refundAmount($scope.currRes.checkin_date, $scope.currRes.total_cost);
+				$scope.cancel_cost = $scope.currRes.total_cost - $scope.refund_amount;
 			}
 			else{
+				console.log("The reservation cannot be found. It may not exist, or you may not own it, or it may have been cancelled already.");
 				//something about how the reservation doesn't exist
 			}
 		});
@@ -445,12 +453,40 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 	$scope.cancelReservation = function(){
 		cancelReservationResponse = reservationFactory.CancelReservation({
-			"reservaton_id": $scope.reservationID,
+			"reservation_id": $scope.resID,
 			"username":$rootScope.currentUser
 		});
+
+		//also pass in the new cost we give it
 	//handle promise
-		cancelReservationResponse.$promise.then(function(data){});
+		cancelReservationResponse.$promise.then(function(data){
+			if(data["result"]==true){
+			console.log("Successfully cancelled reservation.");
+			}
+			else{
+				console.log("This reservation cannot be deleted.")
+
+			}
+		});
 	};
+
+	$scope.today = new Date();
+	$scope.refundAmount = function(checkinDate, theCost){
+		var nowDate = moment();
+		var checkinDateMoment = moment(checkinDate);
+		var delta = Math.round(moment.duration(checkinDateMoment - nowDate).asDays())
+		var refund = 0;
+		if(delta <= 1){
+			refund = 0;
+		}
+		else if(delta<4){
+			refund =theCost*0.8
+		}
+		else{
+			refund = theCost;
+		}
+		return refund;
+	}
 
 
 })

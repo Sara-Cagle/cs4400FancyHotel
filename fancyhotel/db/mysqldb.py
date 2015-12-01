@@ -1,5 +1,5 @@
 import mysql.connector
-from time import strftime
+from datetime import datetime
 
 class MysqlManager(object):
 
@@ -359,15 +359,25 @@ class MysqlManager(object):
 	def cancel_reservation(self, username, reservation_id):
 		cursor = self.connection.cursor()
 		try:
-			reservation = self.get_reservation(reservation_id)
+			reservation = self.get_reservation(username, reservation_id, False)
 			if reservation:
-				cursor.execute(
+				total_cost = 0
+				checkin_date = datetime.strptime(reservation['checkin_date'], "%Y-%m-%d");
+				deltaDays = (datetime.now() - checkin_date).days
+				if deltaDays <= 1:
+					total_cost = reservation['total_cost']
+				elif deltaDays < 4:
+					total_cost = reservation['total_cost'] * 0.20
+				else:
+					total_cost = 0
+
+ 				cursor.execute(
 					'''UPDATE Fancy_Hotel.Reservation
-					SET cancelled_or_not = 1#, cancelled_date = CURDATE()
+					SET cancelled_or_not = 1, total_cost = %(total_cost)s
 					WHERE reservation_id = %(reservation_id)s AND username = %(username)s
 						AND cancelled_or_not = 0
 					''',
-					{'reservation_id': reservation_id, "username": username}
+					{'reservation_id': reservation_id, "username": username, "total_cost": total_cost}
 				)
 				self.connection.commit()
 
