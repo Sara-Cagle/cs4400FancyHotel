@@ -45,7 +45,7 @@
         <form ng-submit="deleteCard()">
         <div class="form-group">
         	<label for="4cardnum">Card number</label>
-            <select>
+            <select ng-model="cardToDelete">
                 <option  ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}">{{creditCards[$index].card_number}}</option> 
             </select>
         </div>

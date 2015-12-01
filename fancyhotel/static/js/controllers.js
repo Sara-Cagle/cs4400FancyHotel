@@ -193,7 +193,6 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 				console.log("login success!");
 				console.log("redirecting...");
 				$window.location.href='#/portal';
-
 			}
 			else{
 				console.log("login failed");
@@ -224,6 +223,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 	var now = new Date();
 	var nowplustwo = new Date();
+	var nowplusone = new Date();
+	nowplusone.setDate(now.getDate()+ 1);
 	nowplustwo.setDate(now.getDate() + 2);
 	$("#startDatePicker").datetimepicker(
 		{
@@ -235,6 +236,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$("#endDatePicker").datetimepicker(
 		{
 			format: 'YYYY-MM-DD',
+			minDate: nowplusone,
 			date: nowplustwo
 		}
 	);
@@ -290,7 +292,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.extra_beds = {};
 
 
-	
+	$scope.creditCards = '';
 	//api/blah/blah?username=Csara
 	$scope.submit = function(){
 		$scope.checkIn = $("#startDatePicker").data("date");
@@ -317,8 +319,10 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			});
 			getCardsResponse.$promise.then(function(data){
 				$scope.creditCards = data; //data is an array
+				if($scope.creditCards.length!=0){
+					$scope.cardNumber = $scope.creditCards[0].card_number;
+				}
 			});
-
 		});
 	};
 	
@@ -352,6 +356,10 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		
 	
 	$scope.bookRooms = function(){
+		if($scope.creditCards=='' || $scope.creditCards.length==0){
+			console.log("credit card info required");
+			window.alert("Please select a credit card for payment. If you have no credit card, please add one first.");
+		}
 		var rooms = []
 		for(var key in $scope.selectedRooms)
 		{
@@ -391,6 +399,11 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		
 		//rooms
 		console.log(rooms);
+		if(rooms.length==0){
+			window.alert("You must select some room(s) in order to make a reservation.");
+			console.log("no rooms selected");
+		}
+
 		var make_response = reservationFactory.MakeReservation(
 			{
 				"username": $rootScope.currentUser,
@@ -578,7 +591,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	});
 	
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
-	$scope.creditCards; //the number for USING a card
+	$scope.creditCards = null; //the number for USING a card
 	$scope.creditCardNumber; //the number for ADDING a card
 	$scope.cardToDelete; //card you're trying to delete
 
@@ -587,6 +600,9 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	});
 	getCardsResponse.$promise.then(function(data){
 		$scope.creditCards = data; //data is an array
+		if($scope.creditCards.length!=0){
+			$scope.cardToDelete = $scope.creditCards[0].card_number;
+		}
 	});
 
 	$scope.addCard = function(){
@@ -610,7 +626,12 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		});
 	}
 
-
+/*if($scope.creditCards != null){
+	if($scope.creditCards.length!=0){
+		console.log("creditCards isn't null or empty");
+		$scope.cardToDelete = $scope.creditCards[$scope.creditCards.length-1].card_number;
+	}
+}*/
 	$scope.deleteCard = function(){
 		deleteCreditCardResponse = paymentFactory.DeleteCreditCard({
 			"username": $rootScope.currentUser,
@@ -695,10 +716,10 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		templateUrl: 'static/views/payment.html',
 		controller: 'paymentController'
 	})
-	.when('/confirmation', {
+	/*.when('/confirmation', {
 		templateUrl: 'static/views/reservationConfirmation.html'//,
-		/*controller: 'contentController'*/
-	})
+		/*controller: 'contentController'
+	})*/
 	.when('/resReport', {
 		templateUrl: 'static/views/reservationReport.html',
 		controller: 'reportController'
