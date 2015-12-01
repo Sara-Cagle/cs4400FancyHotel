@@ -8,7 +8,8 @@
 Hello {{currentUser}}!<br />
 
 <div ng-show="viewPart1">
-Want to update your reservation? Please provide your Reservation ID number.
+Want to update your reservation? Please provide your Reservation ID number.<br />
+You can only update your reservation in terms of dates stayed. You cannot change your rooms or other options regarding your rooms. If you want to change your rooms or anything else, please <a href="#/cancel">cancel</a> your reservation and create a new one.<br />
 
 <form class="form-inline" role="form" ng-submit="findReservation()">
     <div class="form-group">

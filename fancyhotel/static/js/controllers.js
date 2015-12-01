@@ -209,10 +209,6 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.creditCardNumber; //the number for ADDING a card
 	$scope.cardToDelete; //card you're trying to delete
 
-	
-
-
-
 	var now = new Date();
 	var nowplustwo = new Date();
 	var nowplusone = new Date();
@@ -245,6 +241,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$("#newStartDate").datetimepicker(
 		{
 			format: 'YYYY-MM-DD',
+			minDate: new Date()
 		}
 	);
 	$("#newEndDate").datetimepicker(
@@ -282,6 +279,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.hideForm = false;
 	$scope.selectedRooms = {};
 	$scope.extra_beds = {};
+	$scope.location="Atlanta";
 
 
 	$scope.creditCards = '';
@@ -658,6 +656,10 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.viewPart2= false;
 	$scope.reviews;
 	$scope.emptyTable = '';
+	$scope.location="Atlanta";
+	$scope.reviews = [];
+	$scope.rating = "Neutral";
+	$scope.hide = false;
 
 	$scope.addReview = function(){
 		addReviewResponse = reviewFactory.AddReview({
@@ -667,7 +669,9 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			"username": $rootScope.currentUser
 		});
 	//handle promise
-		addReviewResponse.$promise.then(function(data){});
+		addReviewResponse.$promise.then(function(data){
+			window.alert("Review added!");
+		});
 	}
 
 	$scope.getReviews = function(){
@@ -677,11 +681,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		getReviewsResponse.$promise.then(function(data){
 			$scope.viewPart2 = true;
 			$scope.reviews = data; //this is an array
-			if(reviews.length==0){
+			if($scope.reviews.length==0 ){
 				$scope.emptyTable="Sorry, there are no reviews for this location!";
+				$scope.hide = true;
 			}
-
-
+			else{
+				$scope.hide = false;
+			}
 		});
 	}
 
