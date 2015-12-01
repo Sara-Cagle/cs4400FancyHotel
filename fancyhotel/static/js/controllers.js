@@ -41,6 +41,10 @@ resourceModule.factory('reservationFactory', function($resource){
 			method:'GET',
 			url: '/api/reservation/:reservation_id'
 		},
+		MakeReservation: {
+			method: 'POST',
+			url: '/api/reservation/create'	
+		},
 		UpdateReservationConfirm:{
 			method: 'GET',
 			url: '/api/reservation/:reservation_id/availability'
@@ -171,13 +175,38 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 })
 
 .controller('reservationController', function($rootScope, $scope, reservationFactory){
+	
+	var now = new Date();
+	var nowplustwo = new Date();
+	nowplustwo.setDate(now.getDate() + 2);
+	$("#startDatePicker").datetimepicker(
+		{
+			format: 'YYYY-MM-DD',
+			minDate: now,
+			date: now
+		}
+	);
+	$("#endDatePicker").datetimepicker(
+		{
+			format: 'YYYY-MM-DD',
+			date: nowplustwo
+		}
+	);
+	
+	$('#startDatePicker').on("dp.change", function (e) {
+		$('#endDatePicker').data("DateTimePicker").minDate(e.date);
+	});
+
+	$('#endDatePicker').on("dp.change", function (e) {
+		$('#startDatePicker').data("DateTimePicker").maxDate(e.date);
+	});
+					
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$scope.viewPart1 = true; //these views are for the update page
 	$scope.viewPart2 = false;
 	$scope.viewPart3 = false;
 	$scope.currRes =''; //this is for the update page
 	$scope.newCost = 0;
-	
 
 	$scope.availability={ //this is availability of rooms for an update reservation
 		"avail": '',
@@ -186,9 +215,13 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.roomsAvailable = []; //this is rooms available for a new search on rooms, not an upate
 	$scope.error = '';
 	$scope.hideForm = false;
+	$scope.selectedRooms = {};
 	
 	//api/blah/blah?username=Csara
 	$scope.submit = function(){
+		$scope.checkIn = $("#startDatePicker").data("date");
+        $scope.checkOut = $("#endDatePicker").data("date");
+		
 		searchRoomsResponse = reservationFactory.SearchRooms(
 		{
 			"location": $scope.location,
@@ -200,15 +233,51 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 			if(data["result"] == true){
 				$scope.roomsAvailable = data["response"];
 				$scope.hideForm = true; //hides the form and replaces it with the available rooms
-
-
-
 			}
 			else{
 				$scope.error="Sorry, there are no available rooms for this period of time.";
 			}
 		});
 	};
+	
+	$scope.bookRooms = function(){
+		var rooms = []
+		for(var key in $scope.selectedRooms)
+		{
+			if($scope.selectedRooms[key])
+			{
+				$scope.roomsAvailable.forEach(
+					function(room)
+					{
+						if(room.location + room.room_number === key)
+						{
+							rooms.push({
+								"room_number": room.room_number,
+								"location": room.location,
+								"extra_bed_or_not": 0 //something here
+							});
+						}	
+					}
+				);
+			}
+		}
+		
+		//rooms
+		console.log(rooms);
+		var make_response = reservationFactory.MakeReservation(
+			{
+				"username": $rootScope.currentUser,
+				"checkIn": $scope.checkIn,
+				"checkOut": $scope.checkOut,
+				"card_number": "1234567812345678", //need to fill in with card info
+				"rooms": rooms
+			}
+		);
+		make_response.$promise.then(function(data)
+		{
+			console.log(data);	
+		});
+	}
 
 	$scope.findReservation = function(){
 		getReservationResponse = reservationFactory.GetReservation({

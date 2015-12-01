@@ -14,7 +14,7 @@
 
         <div class="form-group">
             <label for="location">Location:</label>
-            <select ng-model="location" required>
+            <select class="form-control" ng-model="location" required>
                 <option value="Atlanta" selected="selected">Atlanta</option>
                 <option value="Charlotte">Charlotte</option>
                 <option value="Savannah,">Savannah</option>
@@ -24,12 +24,22 @@
         </div>
       <!--   http://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_input_date_get -->
         <div class="form-group">
-            <label for="startDate">Start Date:</label>
-            <input type="date" id="startDate" placeholder="YYYY-MM-DD" ng-model="checkIn" required><br />
+            <label for="startDatePicker">Start Date:</label>
+            <div class='input-group date' id='startDatePicker'>
+                <input type="text" class="form-control" placeholder="Start Date" required>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
         </div>
         <div class="form-group">
-            <label for="endDate">End Date:</label>
-            <input type="date" id="endDate" placeholder="YYYY-MM-DD"  ng-model="checkOut" required><br />
+            <label for="endDatePicker">End Date:</label>
+            <div class='input-group date' id='endDatePicker'>
+                <input type="text" class="form-control" placeholder="End Date" required>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
         </div>
         <h2>{{error}}</h2>
         <button type="submit" class="btn btn-default">Search for Available Rooms</button>
@@ -44,10 +54,26 @@
 <form ng-submit="bookRooms()">
     <table style="width:100%">
         <tr>
-            <th>Select Room</th><th>Room Number</th><th>Capacity </th> <th>Room Type </th> <th>Room Price </th> <th>Extra Bed Price</th><th>Select Extra Bed</th>
+            <th>Select Room</th>
+            <th>Room Number</th>
+            <th>Capacity </th> 
+            <th>Room Type </th> 
+            <th>Room Price </th> 
+            <th>Extra Bed Price</th>
+            <th>Select Extra Bed</th>
         </tr>
         <tr  ng-repeat="room in roomsAvailable">
-            <td><input name="roomSelection" type="checkbox" ng-value="room" /></td><td>{{room.room_number}}</td><td>{{room.capacity}} </td> <td>{{room.room_type}} </td> <td>{{room.cost}} </td> <td>{{room.extra_bed_price}}</td><td><input name="extraBedSelection" type="checkbox" ng-value="extraBed" /> </td>
+            <td>
+                <input name="roomSelection" type="checkbox" ng-value="room" ng-model="selectedRooms[room.location+room.room_number]"/>
+            </td>
+                <td>{{room.room_number}}</td>
+                <td>{{room.capacity}} </td> 
+                <td>{{room.room_type}} </td> 
+                <td>{{room.cost}} </td> 
+                <td>{{room.extra_bed_price}}</td>
+                <td>
+                    <input name="extraBedSelection" type="checkbox" ng-value="extraBed" /> 
+                </td>
         </tr>
     </table>
 
