@@ -215,6 +215,7 @@ class MysqlManager(object):
 			)
 
 			rows = cursor.fetchall()
+			print(len(rows))
 			rooms = []
 			for (location, room_number, room_type, cost, capacity, extra_bed_price) in rows:
 				rooms.append(

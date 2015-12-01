@@ -16,7 +16,7 @@
                             <select class="form-control" ng-model="location" required>
                                 <option value="Atlanta" selected="selected">Atlanta</option>
                                 <option value="Charlotte">Charlotte</option>
-                                <option value="Savannah,">Savannah</option>
+                                <option value="Savannah">Savannah</option>
                                 <option value="Orlando">Orlando</option>
                                 <option value="Miami">Miami</option>
                             </select>
@@ -90,7 +90,9 @@
         </div>
         <!--Toggles showing the search rooms page-->
         <div ng-show="confirmationPage">
-            <h1>Confirmation</h1>
+            <h1>Confirmation</h1><br />
+
+            <b>Confirmation Reservation ID:</b> {{confirmationData.id}}
         </div>
 
     </div><!--Toggles the view based on if you're a customer-->
