@@ -5,7 +5,7 @@
     <h1>Hello {{currentUser}} ! </h1>
     <br />
     <div ng-show="{{userType=='customer'}}">
-        <div ng-hide="{{confirmationPage}}">
+        <div ng-hide="confirmationPage">
             <h1>Search Room</h1>
             <div >
                 <!--ng-hide="hideForm"-->
@@ -74,10 +74,10 @@
                     </table>
                     <br />
                     <br />
-                    <b>Total cost:</b> { {price of reservation (including extra bed) }}.<br /><br />
+                    <b>Total cost:</b> $ {{$scope.totalCost}}. <br /><br />
                     <b>Select credit card:</b> 
                     <select ng-model="cardNumber" required>
-                        <option ng-repeat="card in creditCards" value="{{card[$index].card_number}}" selected="select">{{card[$index].card_number}}
+                        <option ng-model="blank" ng-repeat="card in creditCards" value="{{creditCards[$index].card_number}}" selected="select">{{creditCards[$index].card_number}}
                         </option>
                     </select>
                     <br />
@@ -87,7 +87,7 @@
             </div>
         </div>
         <!--Toggles showing the search rooms page-->
-        <div ng-show="{{confirmationPage}}">
+        <div ng-show="confirmationPage">
             <h1>Confirmation</h1>
         </div>
     </div>

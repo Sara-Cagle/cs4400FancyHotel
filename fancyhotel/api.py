@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse, abort, request
 import db #instantiates the database so we don't have to do that in here
+from datetime import datetime
 
 
 
@@ -60,9 +61,20 @@ class CreateReservationResource(Resource):
 	def post(self):
 		args = self.reqparse.parse_args()
 		json_body = request.json
-		print json_body['rooms']
-		id, message, result = db.mysqldb.insert_reservation(args['username'], args['checkIn'], args['checkOut'], args['card_number'], json_body['rooms'])
-		if result:
+		
+		total_cost = 0
+		checkInDate = datetime.strptime(args["checkIn"], "%Y-%m-%d")
+		checkOutDate = datetime.strptime(args["checkOut"], "%Y-%m-%d")
+		deltaDays = (checkOutDate - checkInDate).days
+		
+		for room in json_body['rooms']:
+			total_cost += room['cost'] * deltaDays
+			if room['extra_bed_or_not'] == 1:
+				total_cost + room['extra_bed_price'] * deltaDays
+	
+		id, message, result = db.mysqldb.insert_reservation(args['username'], args['checkIn'], args['checkOut'], args['card_number'], json_body['rooms'], total_cost)
+		
+		if not result:
 			return {"id": id, "message": message, "result": result}, 400
 			
 		return {"id": id, "message": message, "result": result}
@@ -91,13 +103,18 @@ class ReservationResource(Resource):
 	def put(self, reservation_id): #update the reservation
 		args = self.reqparse.parse_args()
 		 
+		total_cost = 0
 		rooms = db.mysqldb.get_rooms_for_reservation(args['username'], reservation_id)
 		for room in rooms:
 			if not db.mysqldb.is_room_free(room['room_number'], room['location'], args['checkIn'], args['checkOut'], reservation_id):
 				return {"message": "Some rooms in your reservation are not free during the specified times", "result": False}, 400
+				
+			total_cost += room['cost'] * deltaDays
+			if room['extra_bed_or_not'] == 1:
+				total_cost + room['extra_bed_price'] * deltaDays
 		#For the rooms in the reservation, check if each room is free during the requested times. If the room is not free, return false.
 
-		message, status = db.mysqldb.update_reservation(reservation_id, args['checkIn'], args['checkOut'])
+		message, status = db.mysqldb.update_reservation(reservation_id, args['checkIn'], args['checkOut'], total_cost)
 		if status:
 			return {"message": message, "result": status}
 		else:
