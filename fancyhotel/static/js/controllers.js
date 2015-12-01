@@ -122,10 +122,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		}
 	}
 
-	$rootScope.getCost = function(){
-		var cost = 0;
-
-	}
+	$rootScope.isRequired = true;
 
 })
 
@@ -275,6 +272,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 	$scope.hideForm = false;
 	$scope.selectedRooms = {};
 	$scope.extra_beds = {};
+
+
 	
 	//api/blah/blah?username=Csara
 	$scope.submit = function(){
@@ -381,7 +380,7 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 				"username": $rootScope.currentUser,
 				"checkIn": $scope.checkIn,
 				"checkOut": $scope.checkOut,
-				"card_number": "1234567812345678", //need to fill in with card info
+				"card_number": $scope.cardNumber, //need to fill in with card info
 				"rooms": rooms
 			}
 		);
