@@ -306,16 +306,16 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 	
-	def insert_reservation(self, username, checkin_date, checkout_date, card_number, rooms):
+	def insert_reservation(self, username, checkin_date, checkout_date, card_number, rooms, total_cost):
 		cursor = self.connection.cursor()
 		try:
 			cursor.execute(
 				'''
 				INSERT INTO Fancy_Hotel.Reservation 
-				(username, checkin_date, checkout_date, card_number)
-				VALUES(%(username)s, %(checkin_date)s, %(checkout_date)s, %(card_number)s)
+				(username, checkin_date, checkout_date, card_number, total_cost)
+				VALUES(%(username)s, %(checkin_date)s, %(checkout_date)s, %(card_number)s, %(total_cost)s)
 				''',
-				{"username": username, "checkin_date": checkin_date, "checkout_date": checkout_date, "card_number": card_number}
+				{"username": username, "checkin_date": checkin_date, "checkout_date": checkout_date, "card_number": card_number, "total_cost": total_cost}
 			)
 			
 			reservation_id = cursor.lastrowid
@@ -324,7 +324,7 @@ class MysqlManager(object):
 				cursor.execute(
 					'''
 					INSERT INTO Fancy_Hotel.Reserves_Extra_Bed
-					(location, room_number, reservation_id, extra_bed_or_not)
+					(location, room_number, reservation_id, extra_bed_or_not )
 					VALUES(%(location)s, %(room_number)s, %(reservation_id)s, %(extra_bed_or_not)s)
 					''',
 					{"location": room['location'], "room_number": room['room_number'], "reservation_id": reservation_id, "extra_bed_or_not": room['extra_bed_or_not']}
@@ -337,17 +337,17 @@ class MysqlManager(object):
 		finally:
 			cursor.close()
 
-	def update_reservation(self, username, reservation_id, checkin_date, checkout_date):
+	def update_reservation(self, username, reservation_id, checkin_date, checkout_date, total_cost):
 		cursor = self.connection.cursor()
 		try:
 			reservation = self.get_reservation(reservation_id, False)
 			if reservation:
 				cursor.execute(
 					'''UPDATE Fancy_Hotel.Reservation
-					SET checkin_date = %(checkin_date)s, checkout_date = %(checkout_date)s
+					SET checkin_date = %(checkin_date)s, checkout_date = %(checkout_date)s, total_cost = %(total_cost)
 					WHERE reservation_id = %(reservation_id)s AND username = %(username)s
 					''',
-					{"reservation_id": reservation_id, "checkin_date":checkin_date, "checkout_date": checkout_date, "username": username}
+					{"reservation_id": reservation_id, "checkin_date":checkin_date, "checkout_date": checkout_date, "username": username, "total_cost": total_cost}
 				)
 				self.connection.commit()
 				return "Reservation updated", True
