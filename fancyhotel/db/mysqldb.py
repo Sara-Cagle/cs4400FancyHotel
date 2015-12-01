@@ -330,10 +330,10 @@ class MysqlManager(object):
 					{"location": room['location'], "room_number": room['room_number'], "reservation_id": reservation_id, "extra_bed_or_not": room['extra_bed_or_not']}
 				)
 				if cursor.rowcount == 0:
-					pass #error
+					return -1, "Error creating reservaiton", False
 				
 			self.connection.commit()
-			return reservation_id
+			return reservation_id, "Successfully created reservation", True
 		finally:
 			cursor.close()
 
