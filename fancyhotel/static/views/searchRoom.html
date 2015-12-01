@@ -8,7 +8,7 @@
 <div ng-show="{{userType=='customer'}}">
 
 <h1>Search Room</h1>
-<div ng-hide="hideForm">
+<div > <!--ng-hide="hideForm"-->
 <form ng-submit="submit()">
 <div class="container"> 
 
@@ -22,7 +22,6 @@
                 <option value="Miami">Miami</option>
             </select>
         </div>
-      <!--   http://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_input_date_get -->
         <div class="form-group">
             <label for="startDatePicker">Start Date:</label>
             <div class='input-group date' id='startDatePicker'>
@@ -47,9 +46,9 @@
 </form>
 </div> <!--Toggles the view of the form-->
 
+
 <div ng-show="hideForm">
     <h1>Rooms available from {{checkIn | date:'yyyy-MM-dd'}} to {{checkOut | date: 'yyyy-MM-dd'}} in {{location}}:</h1>
-    Turn these here into a way to select things
 
 <form ng-submit="bookRooms()">
     <table style="width:100%">

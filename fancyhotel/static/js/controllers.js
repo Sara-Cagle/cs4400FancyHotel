@@ -396,6 +396,21 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 
 })
 
+
+.controller('paymentController', function($rootScope, $scope, paymentFactory){
+	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
+	cardInfoResponse;/* = reviewFactory.AddReview({
+			"location": $scope.location, 
+			"comment": $scope.comment,
+			"rating": $scope.rating, 
+			"username": $rootScope.currentUser
+		});
+	//handle promise
+		addReviewResponse.$promise.then(function(data){});
+	}*/
+
+})
+
 .controller('reviewController', function($rootScope, $scope, reviewFactory){
 	$scope.loggedInBool = $rootScope.alreadyLoggedIn();
 	$scope.comment = ''; //just in case the user doesn't give one, so in our'd DB, we won't have null, instead we'll have ''
@@ -466,8 +481,8 @@ angular.module('FancyHotelApp', ['ngRoute', 'ngResource', 'resourceModule'])
 		controller: 'reservationController'
 	})
 	.when('/payment', {
-		templateUrl: 'static/views/payment.html'//,
-		/*controller: 'contentController'*/
+		templateUrl: 'static/views/payment.html',
+		controller: 'paymentController'
 	})
 	.when('/confirmation', {
 		templateUrl: 'static/views/reservationConfirmation.html'//,
